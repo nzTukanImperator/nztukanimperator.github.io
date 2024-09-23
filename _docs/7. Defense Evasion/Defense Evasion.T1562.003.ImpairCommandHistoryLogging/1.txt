@@ -1,0 +1,40 @@
+---
+title: ".003.ImpairCommandHistoryLogging"
+folder: "07. Defense Evasion/T1562 Impair Defenses"
+---
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <filesystem>
+
+
+bool Copy1File() {
+    std::filesystem::create_directories("C:\\Users\\User\\Documents\\WindowsPowerShell");
+
+    std::ifstream src("C:\\Users\\User\\Desktop\\profile.ps1", std::ios::binary);
+    std::ofstream dest("C:\\Users\\User\\Documents\\WindowsPowerShell\\profile.ps1", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+    
+    
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    
+    Copy1File();
+    return 0;
+}

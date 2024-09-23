@@ -1,0 +1,45 @@
+---
+title: "testmsi"
+folder: "07. Defense Evasion/T1218 System Binary Proxy Execution/.007 Msiexec"
+---
+
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" Name="testmsi" Language="1033" Version="1.0.0.0" Manufacturer="Nazwa producenta" UpgradeCode="e4c6e6c4-6c78-4304-b312-d499b278290b">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate />
+
+		<Feature Id="ProductFeature" Title="testmsi" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+		</Feature>
+
+		<!-- Dodanie niestandardowej akcji do uruchomienia calc.exe -->
+		<CustomAction Id="RunProgram" FileKey="MainProgramEXE" ExeCommand="" Return="asyncNoWait" />
+		<InstallExecuteSequence>
+			<Custom Action="RunProgram" Before="InstallFinalize">NOT Installed</Custom>
+		</InstallExecuteSequence>
+
+	</Product>
+
+	<!-- Definicja struktury katalogów -->
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="testmsi" />
+			</Directory>
+		</Directory>
+	</Fragment>
+
+	<!-- Dodanie komponentu z plikiem calc.exe -->
+	<Fragment>
+		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+			<Component Id="MainProgram" Guid="*">
+				<File Id="MainProgramEXE" Source="calc.exe" KeyPath="yes" />
+			</Component>
+		</ComponentGroup>
+	</Fragment>
+</Wix>

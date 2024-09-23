@@ -1,0 +1,50 @@
+---
+title: "T1202.Indirect Command Execution"
+folder: "07. Defense Evasion"
+---
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+void AutorunRegistryBackground4() {
+
+    const char* command = "C:\\Windows\\System32\\forfiles.exe /C \"cmd /c whoami > C:\\Users\\User\\Desktop\\wynikforfiles.txt\"";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+     
+     
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+void AutorunRegistryBackground6() {
+
+    const char* command = "C:\\Windows\\System32\\forfiles.exe /C \"msinfo32.exe";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    AutorunRegistryBackground4();
+    AutorunRegistryBackground6();
+    return 0;
+}

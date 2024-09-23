@@ -1,0 +1,35 @@
+---
+title: "T1127.001.MSBuild"
+folder: "07. Defense Evasion"
+---
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+
+void AutorunRegistryBackground4() {
+
+    const char* command = "C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe C:\\Users\\User\\Desktop\\Test.proj";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+
+    AutorunRegistryBackground4();
+    return 0;
+}

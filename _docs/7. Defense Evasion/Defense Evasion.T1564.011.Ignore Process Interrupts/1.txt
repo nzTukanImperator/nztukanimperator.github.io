@@ -1,0 +1,35 @@
+---
+title: ".011.Ignore Process Interrupts"
+folder: "07. Defense Evasion/T1564 Hide Artifacts"
+---
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+void AutorunRegistryBackground4() {
+    const char* command = "powershell.exe -Command \".\\script.ps1\"";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+        std::cout << "PowerShell uruchomiony jako niezależny proces." << std::endl;
+
+        // Zamknięcie uchwytu wątku, aby uniknąć wycieku zasobów
+        CloseHandle(pi.hThread);
+    }
+    else {
+        std::cerr << "Nie udało się uruchomić procesu PowerShell." << std::endl;
+    }
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    AutorunRegistryBackground4();
+    return 0;
+}

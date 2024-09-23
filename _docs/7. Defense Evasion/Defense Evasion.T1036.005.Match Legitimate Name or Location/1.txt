@@ -1,0 +1,187 @@
+---
+title: ".005.Match Legitimate Name or Location"
+folder: "07. Defense Evasion/T1036 Masquerading"
+---
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+
+bool svchost() {
+    std::ifstream src("C:\\Users\\User\\Desktop\\runcalc.exe", std::ios::binary);
+    std::ofstream dest("C:\\Users\\User\\Desktop\\svchost.exe", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+bool rundll32() {
+    std::ifstream src("C:\\Users\\User\\Desktop\\runcalc.exe", std::ios::binary);
+    std::ofstream dest("C:\\Users\\User\\Desktop\\rundll32.exe", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+bool cmd32() {
+    std::ifstream src("C:\\Users\\User\\Desktop\\runcalc.exe", std::ios::binary);
+    std::ofstream dest("C:\\Windows\\System32\\cmd32.exe", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+bool rundll64() {
+    std::ifstream src("C:\\Users\\User\\Desktop\\runcalc.exe", std::ios::binary);
+    std::ofstream dest("C:\\Windows\\System32\\rundll64.exe", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+bool WebTool() {
+    std::ifstream src("C:\\Users\\User\\Desktop\\runcalc.exe", std::ios::binary);
+    std::ofstream dest("C:\\Windows\\System32\\WebToolUpdate.exe", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+bool ThrashBinRemover() {
+    std::ifstream src("C:\\Users\\User\\Desktop\\runcalc.exe", std::ios::binary);
+    std::ofstream dest("C:\\Windows\\System32\\ThrashBinRemover.exe", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+
+void RunWhoamiCommand() {
+    const char* command1 = "C:\\Users\\User\\Desktop\\svchost.exe";
+    const char* command2 = "C:\\Users\\User\\Desktop\\rundll32.exe";
+    const char* command3 = "C:\\Windows\\System32\\cmd32.exe";
+    const char* command4 = "C:\Windows\System32\\rundll64.exe";
+    const char* command5 = "C:\Windows\System32\\WebToolUpdate.exe";
+    const char* command6 = "C:\Windows\System32\\ThrashBinRemover.exe";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command1), NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+        std::cout << "PowerShell uruchomiony jako niezależny proces." << std::endl;
+        CloseHandle(pi.hThread);
+    }
+    Sleep(1000);
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command2), NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+        std::cout << "PowerShell uruchomiony jako niezależny proces." << std::endl;
+        CloseHandle(pi.hThread);
+    }
+
+
+    Sleep(1000);
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command3), NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+        std::cout << "PowerShell uruchomiony jako niezależny proces." << std::endl;
+        CloseHandle(pi.hThread);
+    }
+    Sleep(1000);
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command4), NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+        std::cout << "PowerShell uruchomiony jako niezależny proces." << std::endl;
+        CloseHandle(pi.hThread);
+    }
+
+
+    Sleep(1000);
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command5), NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+        std::cout << "PowerShell uruchomiony jako niezależny proces." << std::endl;
+        CloseHandle(pi.hThread);
+    }
+    Sleep(1000);
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command6), NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+        std::cout << "PowerShell uruchomiony jako niezależny proces." << std::endl;
+        CloseHandle(pi.hThread);
+    }
+
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    svchost();
+    rundll32();
+    cmd32();
+    rundll64();
+    WebTool();
+    ThrashBinRemover();
+    RunWhoamiCommand();
+    return 0;
+}

