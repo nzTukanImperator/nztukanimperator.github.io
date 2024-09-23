@@ -1,0 +1,251 @@
+---
+title: ".003 Employee Names"
+folder: "01. Reconnaissance/T1589. Gather Victim Identity Information"
+---
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+
+
+void whoami() {
+    std::ofstream outputFile("whoami.txt");
+    const char* command = "whoami";
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) { outputFile.close(); return; }
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) { outputFile.close(); return; }
+
+    CloseHandle(hWritePipe);
+
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1);
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    outputFile.close();
+}
+void net_user() {
+    std::ofstream outputFile("net_user.txt");
+    const char* command = "net user";
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) { outputFile.close(); return; }
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) { outputFile.close(); return; }
+
+    CloseHandle(hWritePipe);
+
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1);
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    outputFile.close();
+}
+void net_admin() {
+    std::ofstream outputFile("net_admin.txt");
+    const char* command = "net localgroup administratorzy";
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) { outputFile.close(); return; }
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) { outputFile.close(); return; }
+
+    CloseHandle(hWritePipe);
+
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1);
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    outputFile.close();
+}
+
+void Get_WmiObject() {
+
+    std::ofstream outputFile("Get-WmiObject.txt");
+    const char* command = "powershell.exe -ExecutionPolicy Bypass -Command Get-WmiObject Win32_UserAccount | Out-String -width 9999";
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) { outputFile.close(); return; }
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) { outputFile.close(); return; }
+
+
+    CloseHandle(hWritePipe);
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1);
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    outputFile.close();
+}
+
+void Get_LocalUser() {
+
+    std::ofstream outputFile("Get_LocalUser.txt");
+    const char* command = "powershell.exe -ExecutionPolicy Bypass -Command Get-LocalUser | Select-Object Name, FullName, Enabled, PasswordRequired | Out-String -width 9999";
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) { outputFile.close(); return; }
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) { outputFile.close(); return; }
+
+
+    CloseHandle(hWritePipe);
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1);
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    outputFile.close();
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    whoami();
+    net_user();
+    Get_WmiObject();
+    Get_LocalUser();
+    net_admin();
+    return 0;
+}

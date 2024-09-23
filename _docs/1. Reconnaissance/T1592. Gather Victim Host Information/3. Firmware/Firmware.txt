@@ -1,0 +1,189 @@
+
+---
+title: ".003 Firmware"
+folder: "01. Reconnaissance/T1592. Gather Victim Host Information"
+---
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+HWND systemInfoButton;
+HWND deviceManagerButton;
+
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+
+void Disk_Firmware() {
+    std::ofstream outputFile("Disk_Firmware.txt");
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) { std::cerr << "Błąd tworzenia potoku." << std::endl; outputFile << "Błąd tworzenia potoku." << std::endl; outputFile.close(); return; }
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+    const char* command = "powershell.exe -ExecutionPolicy Bypass -Command Get-CimInstance -ClassName Win32_DiskDrive | Select-Object -Property DeviceID, Manufacturer, Model, FirmwareRevision | Out-String -width 9999";
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) { std::cerr << "Błąd uruchamiania powershell.exe. Kod błędu: " << GetLastError() << std::endl; outputFile << "Błąd uruchamiania powershell.exe. Kod błędu: " << GetLastError() << std::endl; outputFile.close(); return; }
+
+    CloseHandle(hWritePipe);
+
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1);  
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+
+    outputFile.close();
+}
+
+void BIOS() {
+    std::ofstream outputFile("BIOS.txt");
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) {
+        std::cerr << "Błąd tworzenia potoku." << std::endl;
+        outputFile << "Błąd tworzenia potoku." << std::endl;
+        outputFile.close();
+        return;
+    }
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+    const char* command = "powershell.exe -ExecutionPolicy Bypass -Command Get-WmiObject -Class Win32_BIOS | Out-String -width 9999";
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+        std::cerr << "Błąd uruchamiania powershell.exe. Kod błędu: " << GetLastError() << std::endl;
+        outputFile << "Błąd uruchamiania powershell.exe. Kod błędu: " << GetLastError() << std::endl;
+        outputFile.close();
+        return;
+    }
+
+    CloseHandle(hWritePipe);
+
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1);  
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+
+    outputFile.close();
+}
+
+void Rev_By_PNP() {
+
+    std::ofstream outputFile("Rev_By_PNP.txt", std::ios::out | std::ios::binary);
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) {
+        std::cerr << "Błąd tworzenia potoku." << std::endl;
+        outputFile << "Błąd tworzenia potoku." << std::endl;
+        outputFile.close();
+        return;
+    }
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+    const char* command = "powershell.exe -ExecutionPolicy Bypass -Command Get-WmiObject Win32_PnPEntity | Select-Object DeviceID, Caption | Out-String -width 9999";
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+        std::cerr << "Błąd uruchamiania powershell.exe. Kod błędu: " << GetLastError() << std::endl;
+        outputFile << "Błąd uruchamiania powershell.exe. Kod błędu: " << GetLastError() << std::endl;
+        outputFile.close();
+        return;
+    }
+
+    CloseHandle(hWritePipe);
+
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1);  
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+
+    outputFile.close();
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    Disk_Firmware();
+    BIOS();
+    Rev_By_PNP();
+
+    return 0;
+}
+

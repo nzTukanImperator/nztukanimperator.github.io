@@ -1,0 +1,165 @@
+---
+title: "Uwaga! T1594 Search Victim-Owned Websites"
+folder: "01. Reconnaissance"
+---
+
+Uwaga! Zwykły użytkownik nie posiada własnej strony internetowej, dlatego przerobiłem tę technikę tak iż cel jest ten sam, ale podejście zupełnie inne. Otóż uruchomiony program sam tworzy stronę internetową na porcie 8080, na której możemy pobrać wszystkie pliki użytkownika z danej lokalizacji.
+
+
+#include <boost/asio.hpp>
+#include <boost/filesystem.hpp>
+#include <fstream>
+#include <iostream>
+#include <vector>
+#include <boost/locale.hpp>
+
+
+namespace fs = boost::filesystem;
+using namespace boost::asio;
+
+class FileServer {
+public:
+    FileServer(io_service& io_service, short port)
+        : acceptor_(io_service, ip::tcp::endpoint(ip::tcp::v4(), port)),
+        socket_(io_service) {
+        startAccept();
+    }
+
+    ~FileServer() {
+        std::cout << "Server shutting down" << std::endl;
+    }
+
+private:
+    void startAccept() {
+        acceptor_.async_accept(socket_,
+            [this](boost::system::error_code ec) {
+                if (!ec) {
+                    std::cout << "Client connected" << std::endl;
+                    std::thread(&FileServer::handleRequest, this).detach();
+                }
+
+                startAccept();
+            });
+    }
+    std::string url_decode(const std::string& input) {
+        std::string result;
+        for (std::size_t i = 0; i < input.size(); ++i) {
+            if (input[i] == '%' && i + 2 < input.size()) {
+                int value;
+                std::istringstream hex(input.substr(i + 1, 2));
+                hex >> std::hex >> value;
+                result += static_cast<char>(value);
+                i += 2;
+            }
+            else {
+                result += input[i];
+            }
+        }
+        return result;
+    }
+    void handleRequest() {
+        boost::asio::streambuf request;
+        boost::asio::read_until(socket_, request, "\r\n");
+
+        std::istream request_stream(&request);
+        std::string method, path, version;
+        request_stream >> method >> path >> version;
+
+        std::cout << "Received request: " << method << " " << path << " " << version << std::endl;
+
+        if (method == "GET") {
+            fs::path decoded_path = url_decode(path);
+
+            std::string utf8_path = boost::locale::conv::from_utf(decoded_path.generic_wstring(), "CP1250");
+
+            serveDirectory(utf8_path);
+        }
+        else {
+            std::cout << "Unsupported method: " << method << std::endl;
+        }
+
+        socket_.close();
+    }
+
+    void serveDirectory(const std::string& path) {
+        std::cout << "Serve Directory for path: " << path << std::endl;
+        std::string executable_path = fs::canonical(fs::path(fs::current_path())).string();
+        fs::path directory_path = (path == "/") ? executable_path : fs::path(executable_path) / path;
+
+
+        std::cout << "Requested path: " << directory_path << std::endl;
+
+        if (!fs::exists(directory_path)) {
+            std::cout << "Path not found: " << directory_path.string() << std::endl;
+            return;
+        }
+
+        std::ostringstream response;
+
+        if (fs::is_directory(directory_path)) {
+            response << "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
+            response << "<html><body><h1>Directory Listing</h1><ul>";
+
+            for (const auto& entry : fs::directory_iterator(directory_path)) {
+                std::string entry_name = entry.path().filename().string();
+                fs::path entry_path = entry.path();
+                std::string relative_path;
+
+                if (fs::is_directory(entry_path)) {
+                    relative_path = entry_name + "/";
+                }
+                else {
+                    relative_path = entry_name;
+                }
+
+                response << "<li><a href='" << relative_path << "'>" << entry_name << "</a></li>";
+            }
+
+            response << "</ul></body></html>";
+        }
+        else if (fs::is_regular_file(directory_path)) {
+            std::ifstream file(directory_path.string(), std::ios::binary | std::ios::ate);
+            if (file.is_open()) {
+                std::streamsize size = file.tellg();
+                file.seekg(0, std::ios::beg);
+
+                std::vector<char> buffer(size);
+                if (file.read(buffer.data(), size)) {
+                    response << "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: "
+                        << size << "\r\n\r\n";
+                    boost::asio::write(socket_, boost::asio::buffer(response.str()));
+                    boost::asio::write(socket_, boost::asio::buffer(buffer));
+                }
+                else {
+                    std::cout << "Error reading file: " << directory_path << std::endl;
+                }
+
+                file.close();
+            }
+            else {
+                std::cout << "Error opening file: " << directory_path << std::endl;
+                return;
+            }
+        }
+
+
+        boost::asio::write(socket_, boost::asio::buffer(response.str()));
+    }
+
+
+    ip::tcp::acceptor acceptor_;
+    ip::tcp::socket socket_;
+};
+
+int main() {
+    try {
+        boost::asio::io_service io_service;
+        FileServer server(io_service, 8080);
+        io_service.run();
+    }
+    catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+    }
+
+    return 0;
+}
