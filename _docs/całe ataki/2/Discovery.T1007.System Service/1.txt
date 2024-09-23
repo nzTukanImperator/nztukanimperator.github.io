@@ -1,0 +1,314 @@
+---
+title: "Discovery.T1007.System Service"
+folder: "Całe Ataki/2. Collector"
+---
+
+
+
+
+
+#include <iostream>
+#include <fstream>
+#include <Windows.h>
+#include <winsvc.h>
+#include <Wbemidl.h>
+#include <comdef.h>
+#include <string>
+#include <windows.h>
+#include <psapi.h>
+#include <fstream>
+#include <iostream>
+#include <locale>
+#include <codecvt>
+#pragma comment(lib, "wbemuuid.lib")
+
+void RunSystemInfoInBackground() {
+    std::ofstream outputFile("C:\\Users\\User\\Downloads\\Logs\\scquery.txt");
+    const char* command = "sc query";
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) { outputFile.close(); return; }
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) { outputFile.close(); return; }
+
+    CloseHandle(hWritePipe);
+
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1);
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    outputFile.close();
+}
+void RunSystemInfoInBackground1() {
+    std::ofstream outputFile("C:\\Users\\User\\Downloads\\Logs\\tasklist.txt");
+    const char* command = "tasklist /svc";
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) { outputFile.close(); return; }
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) { outputFile.close(); return; }
+
+    CloseHandle(hWritePipe);
+
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1);
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    outputFile.close();
+}
+void RunSystemInfoInBackground2() {
+    std::ofstream outputFile("C:\\Users\\User\\Downloads\\Logs\\netstart.txt");
+    const char* command = "net start";
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) { outputFile.close(); return; }
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) { outputFile.close(); return; }
+
+    CloseHandle(hWritePipe);
+
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1);
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    outputFile.close();
+}
+int ListServices() {
+    HRESULT hres;
+
+    // Inicjalizacja COM.
+    hres = CoInitializeEx(0, COINIT_MULTITHREADED);
+    if (FAILED(hres)) {
+        std::cerr << "Nie można zainicjować biblioteki COM." << std::endl;
+        return 1;
+    }
+
+    // Inicjalizacja poziomów zabezpieczeń.
+    hres = CoInitializeSecurity(
+        nullptr,
+        -1,
+        nullptr,
+        nullptr,
+        RPC_C_AUTHN_LEVEL_DEFAULT,
+        RPC_C_IMP_LEVEL_IMPERSONATE,
+        nullptr,
+        EOAC_NONE,
+        nullptr
+    );
+    if (FAILED(hres)) {
+        std::cerr << "Nie można zainicjować poziomów zabezpieczeń." << std::endl;
+        CoUninitialize();
+        return 1;
+    }
+
+    // Utworzenie lokalizatora WMI.
+    IWbemLocator* pLoc = nullptr;
+    hres = CoCreateInstance(
+        CLSID_WbemLocator,
+        0,
+        CLSCTX_INPROC_SERVER,
+        IID_IWbemLocator,
+        reinterpret_cast<void**>(&pLoc)
+    );
+    if (FAILED(hres)) {
+        std::cerr << "Nie można utworzyć instancji lokalizatora WMI." << std::endl;
+        CoUninitialize();
+        return 1;
+    }
+
+    // Połączenie z serwerem WMI.
+    IWbemServices* pSvc = nullptr;
+    hres = pLoc->ConnectServer(
+        _bstr_t(L"ROOT\\CIMV2"), // Ścieżka do przestrzeni nazw WMI
+        nullptr,                 // Nazwa użytkownika. NULL = aktualny użytkownik
+        nullptr,                 // Hasło użytkownika. NULL = aktualny
+        nullptr,                 // Ustawienia regionalne. NULL oznacza bieżące
+        0,                       // Flaga zabezpieczeń
+        nullptr,                 // Autorytet (np. Kerberos)
+        nullptr,                 // Kontekst obiektu 
+        &pSvc                    // Wskaźnik do proxy IWbemServices
+    );
+    if (FAILED(hres)) {
+        std::cerr << "Nie można połączyć się z serwerem WMI." << std::endl;
+        pLoc->Release();
+        CoUninitialize();
+        return 1;
+    }
+
+    // Ustawienie poziomów zabezpieczeń dla proxy.
+    hres = CoSetProxyBlanket(
+        pSvc,
+        RPC_C_AUTHN_WINNT,
+        RPC_C_AUTHZ_NONE,
+        nullptr,
+        RPC_C_AUTHN_LEVEL_CALL,
+        RPC_C_IMP_LEVEL_IMPERSONATE,
+        nullptr,
+        EOAC_NONE
+    );
+    if (FAILED(hres)) {
+        std::cerr << "Nie można ustawić poziomów zabezpieczeń dla proxy." << std::endl;
+        pSvc->Release();
+        pLoc->Release();
+        CoUninitialize();
+        return 1;
+    }
+
+    // Wykonanie zapytania WMI.
+    IEnumWbemClassObject* pEnumerator = nullptr;
+    hres = pSvc->ExecQuery(
+        bstr_t("WQL"),
+        bstr_t("SELECT * FROM Win32_Service"),
+        WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
+        nullptr,
+        &pEnumerator
+    );
+    if (FAILED(hres)) {
+        std::cerr << "Nie można wykonać zapytania WMI." << std::endl;
+        pSvc->Release();
+        pLoc->Release();
+        CoUninitialize();
+        return 1;
+    }
+    std::ofstream file("C:\\Users\\User\\Downloads\\Logs\\services_list.txt");
+    if (!file.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do zapisu." << std::endl;
+        pEnumerator->Release();
+        pSvc->Release();
+        pLoc->Release();
+        CoUninitialize();
+        return 1;
+    }
+    // Przeglądanie wyników zapytania.
+    ULONG uReturn = 0;
+    while (pEnumerator) {
+        IWbemClassObject* pclsObj = nullptr;
+        ULONG uReturn = 0;
+
+        hres = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+
+        if (0 == uReturn) {
+            break;
+        }
+
+        VARIANT vtProp;
+
+        // Pobranie wartości właściwości "Name".
+        hres = pclsObj->Get(L"Name", 0, &vtProp, 0, 0);
+
+        if (FAILED(hres)) {
+            std::cerr << "Nie można pobrać wartości właściwości." << std::endl;
+            pclsObj->Release();
+            continue;
+        }
+        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+        std::string driverName = converter.to_bytes(std::wstring(vtProp.bstrVal));
+        file << driverName << std::endl;
+
+        VariantClear(&vtProp);
+        pclsObj->Release();
+    }
+
+    // Zamknięcie pliku i zwolnienie zasobów.
+    file.close();
+    pSvc->Release();
+    pLoc->Release();
+    pEnumerator->Release();
+    CoUninitialize();
+
+    std::cout << "Lista serwisów została zapisana do pliku services_list.txt" << std::endl;
+
+    return 0;
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    RunSystemInfoInBackground();
+    RunSystemInfoInBackground1();
+    RunSystemInfoInBackground2();
+    ListServices();
+    return 0;
+}

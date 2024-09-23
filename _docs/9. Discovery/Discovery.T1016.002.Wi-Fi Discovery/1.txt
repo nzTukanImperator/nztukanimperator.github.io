@@ -1,0 +1,179 @@
+---
+title: "T1016.002.Wi-Fi Discovery"
+folder: "09. Discovery"
+---
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <wlanapi.h> 
+
+#pragma comment(lib, "Wlanapi.lib") 
+
+
+void saveWifiProfilesToFile(const char* filePath) {
+    HANDLE hClient = NULL;
+    DWORD dwMaxClient = 2;
+    DWORD dwCurVersion = 0;
+    DWORD dwResult = 0;
+    std::ofstream outFile(filePath);
+    
+    dwResult = WlanOpenHandle(dwMaxClient, NULL, &dwCurVersion, &hClient);
+    if (dwResult != ERROR_SUCCESS) {
+        outFile << "WlanOpenHandle failed with error: " << dwResult << std::endl;
+        return;
+    }
+
+    WLAN_INTERFACE_INFO_LIST* pIfList = NULL;
+    dwResult = WlanEnumInterfaces(hClient, NULL, &pIfList);
+    if (dwResult != ERROR_SUCCESS) {
+        outFile << "WlanEnumInterfaces failed with error: " << dwResult << std::endl;
+        WlanCloseHandle(hClient, NULL);
+        return;
+    }
+
+    
+    if (!outFile.is_open()) {
+        outFile << "Failed to open file for writing." << std::endl;
+        WlanFreeMemory(pIfList);
+        WlanCloseHandle(hClient, NULL);
+        return;
+    }
+
+    for (DWORD i = 0; i < pIfList->dwNumberOfItems; ++i) {
+        PWLAN_INTERFACE_INFO pIfInfo = (WLAN_INTERFACE_INFO*)&pIfList->InterfaceInfo[i];
+        PWLAN_PROFILE_INFO_LIST pProfileList = NULL;
+
+        dwResult = WlanGetProfileList(hClient, &pIfInfo->InterfaceGuid, NULL, &pProfileList);
+        if (dwResult != ERROR_SUCCESS) {
+            outFile << "WlanGetProfileList failed with error: " << dwResult << std::endl;
+            continue;
+        }
+
+        for (DWORD j = 0; j < pProfileList->dwNumberOfItems; ++j) {
+            WLAN_PROFILE_INFO* pProfileInfo = (WLAN_PROFILE_INFO*)&pProfileList->ProfileInfo[j];
+            outFile << pProfileInfo->strProfileName << std::endl;
+        }
+
+        if (pProfileList != NULL) {
+            WlanFreeMemory(pProfileList);
+        }
+        
+    }
+
+    outFile.close();
+    WlanFreeMemory(pIfList);
+    WlanCloseHandle(hClient, NULL);
+}
+void saveBSSListToFile(const char* filePath) {
+    std::ofstream outputFile(filePath);
+    WLAN_INTERFACE_INFO_LIST* interfaceList = nullptr;
+    HANDLE hClient = NULL;
+    DWORD dwMaxClient = 2;
+    DWORD dwCurVersion = 0;
+    DWORD dwResult = 0;
+    dwResult = WlanOpenHandle(dwMaxClient, NULL, &dwCurVersion, &hClient);
+    if (dwResult != ERROR_SUCCESS) {
+        outputFile << "WlanOpenHandle failed with error: " << dwResult << std::endl;
+        WlanFreeMemory(interfaceList); 
+        return;
+    }
+    dwResult = WlanEnumInterfaces(hClient, NULL, &interfaceList);
+    if (dwResult != ERROR_SUCCESS) {
+        outputFile << "WlanEnumInterfaces failed with error: " << dwResult << std::endl;
+        return;
+    }
+
+    if (interfaceList->dwNumberOfItems < 1) {
+        outputFile << "No WLAN interfaces found." << std::endl;
+        WlanFreeMemory(interfaceList);
+        return;
+    }
+
+    GUID guid = interfaceList->InterfaceInfo[0].InterfaceGuid;
+    WLAN_BSS_LIST* pBssList = nullptr;
+    dwResult = WlanGetNetworkBssList(hClient, &guid, nullptr, dot11_BSS_type_any, FALSE, nullptr, &pBssList);
+    if (dwResult != ERROR_SUCCESS) {
+        outputFile << "WlanGetNetworkBssList failed with error: " << dwResult << std::endl;
+        WlanCloseHandle(hClient, nullptr);
+        WlanFreeMemory(interfaceList);
+        return;
+    }
+
+    for (DWORD i = 0; i < pBssList->dwNumberOfItems; i++) {
+        WLAN_BSS_ENTRY bssEntry = pBssList->wlanBssEntries[i];
+        outputFile << "BSSID: " << std::hex;
+        for (int j = 0; j < sizeof(bssEntry.dot11Bssid); j++) {
+            outputFile << static_cast<int>(bssEntry.dot11Bssid[j]);
+            if (j < sizeof(bssEntry.dot11Bssid) - 1)
+                outputFile << "-";
+        }
+        outputFile << std::endl;
+    }
+
+    WlanCloseHandle(hClient, nullptr);
+    WlanFreeMemory(interfaceList);
+    WlanFreeMemory(pBssList);
+
+    outputFile.close();
+    std::cout << "BSS list saved to " << filePath << std::endl;
+}
+void RunSystemInfoInBackground4() {
+    std::ofstream outputFile("netsh.txt");
+    const char* command = "netsh wlan show all";
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) { outputFile.close(); return; }
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) { outputFile.close(); return; }
+
+    CloseHandle(hWritePipe);
+
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1);  
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    outputFile.close();
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    RunSystemInfoInBackground4();
+    const char* filePath = "wifi_profiles.txt";
+    saveWifiProfilesToFile(filePath);
+    const char* filePatha = "bss_lista.txt";
+    saveBSSListToFile(filePatha);
+    return 0;
+}

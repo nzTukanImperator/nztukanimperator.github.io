@@ -1,0 +1,30 @@
+---
+title: "T1496.Resource Hijacking"
+folder: "14. Impact"
+---
+
+
+
+
+
+#include <iostream>
+#include <chrono>
+#include <thread>
+#include <windows.h>
+#include <fstream>
+
+
+void dodawanie() {
+    int wynik = 0;
+    while (true) {
+        wynik++;
+        std::this_thread::sleep_for(std::chrono::milliseconds(0)); // Oczekiwanie przez 5 milisekund
+    }
+}
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    dodawanie();
+    return 0;
+}

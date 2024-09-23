@@ -1,0 +1,61 @@
+---
+title: "T1016.001.Internet Connection"
+folder: "09. Discovery"
+---
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+
+bool PingWebsite(const std::string& website) {
+    std::string command = "ping -n 1 " + website;
+    int result = system(command.c_str());
+    return result == 0; 
+}
+
+void AutorunRegistryBackground4() {
+    std::ofstream outputFile("ping_results.txt");
+
+    if (outputFile.is_open()) {
+        if (PingWebsite("wp.pl")) {
+            outputFile << "wp.pl: success" << std::endl;
+        }
+        else {
+            outputFile << "wp.pl: fail" << std::endl;
+        }
+        if (PingWebsite("127.0.0.1")) {
+            outputFile << "localhost: success" << std::endl;
+        }
+        else {
+            outputFile << "localhost: fail" << std::endl;
+        }
+
+        if (PingWebsite("onet.pl")) {
+            outputFile << "onet.pl: success" << std::endl;
+        }
+        else {
+            outputFile << "onet.pl: fail" << std::endl;
+        }
+
+        if (PingWebsite("google.com")) {
+            outputFile << "google.com: success" << std::endl;
+        }
+        else {
+            outputFile << "google.com: fail" << std::endl;
+        }
+
+        outputFile.close();
+    }
+    else {
+        std::cerr << "Unable to open file for writing." << std::endl;
+    }
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    AutorunRegistryBackground4();
+    return 0;
+}

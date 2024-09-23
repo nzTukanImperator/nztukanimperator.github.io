@@ -1,0 +1,123 @@
+---
+title: "T1125.Video Capture"
+folder: "11. Collection"
+---
+
+
+
+
+
+#include <iostream>
+#include <windows.h>
+#include <gdiplus.h>
+#include <string>
+#include <filesystem>
+#include <opencv2/opencv.hpp>
+
+namespace fs = std::filesystem;
+using namespace Gdiplus;
+
+const int NUM_SCREENSHOTS_TO_KEEP = 5;
+const int SCREENSHOT_INTERVAL_SECONDS = 0.1;
+const int VIDEO_FPS = 30;
+
+void SaveHBITMAPToFile(HBITMAP hBitmap, const wchar_t* filename);
+int GetEncoderClsid(const WCHAR* format, CLSID* pClsid);
+
+std::wstring StringToWString(const std::string& str) {
+    int size = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+    std::wstring wstr(size, 0);
+    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &wstr[0], size);
+    return wstr;
+}
+
+void CaptureAndSaveScreenshot(const std::string& outputFilename) {
+    GdiplusStartupInput gdiplusStartupInput;
+    ULONG_PTR gdiplusToken;
+    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+    HDC hScreenDC = GetDC(NULL);
+    HDC hMemoryDC = CreateCompatibleDC(hScreenDC);
+
+    int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+
+    HBITMAP hBitmap = CreateCompatibleBitmap(hScreenDC, screenWidth, screenHeight);
+    HBITMAP hOldBitmap = (HBITMAP)SelectObject(hMemoryDC, hBitmap);
+
+    BitBlt(hMemoryDC, 0, 0, screenWidth, screenHeight, hScreenDC, 0, 0, SRCCOPY);
+
+    SaveHBITMAPToFile(hBitmap, StringToWString(outputFilename).c_str());
+
+    SelectObject(hMemoryDC, hOldBitmap);
+    DeleteObject(hBitmap);
+    DeleteDC(hMemoryDC);
+    ReleaseDC(NULL, hScreenDC);
+
+    GdiplusShutdown(gdiplusToken);
+}
+
+void SaveHBITMAPToFile(HBITMAP hBitmap, const wchar_t* filename) {
+    Bitmap bitmap(hBitmap, NULL);
+    CLSID clsid;
+    GetEncoderClsid(L"image/bmp", &clsid);
+    bitmap.Save(filename, &clsid, NULL);
+}
+
+int GetEncoderClsid(const WCHAR* format, CLSID* pClsid) {
+    UINT num = 0; 
+    UINT size = 0; 
+    ImageCodecInfo* pImageCodecInfo = NULL;
+
+    GetImageEncodersSize(&num, &size);
+    if (size == 0)
+        return -1;  
+
+    pImageCodecInfo = (ImageCodecInfo*)(malloc(size));
+    if (pImageCodecInfo == NULL)
+        return -1;  
+
+    GetImageEncoders(num, size, pImageCodecInfo);
+
+    for (UINT j = 0; j < num; ++j) {
+        if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0) {
+            *pClsid = pImageCodecInfo[j].Clsid;
+            free(pImageCodecInfo);
+            return j;   
+        }
+    }
+
+    free(pImageCodecInfo);
+    return -1;  
+}
+
+void AddScreenshotToVideo(const std::string& screenshotFile, cv::VideoWriter& video) {
+    cv::Mat screenshot = cv::imread(screenshotFile, cv::IMREAD_COLOR);
+    if (!screenshot.empty()) {
+        video.write(screenshot);
+    }
+}
+
+int main() {
+    std::string outputFilename = "screenshot.bmp";
+    std::string videoFilename = "screen_capture.avi";
+
+    // Zapisz pierwszy zrzut do pliku
+    CaptureAndSaveScreenshot(outputFilename);
+
+    // Otwórz wideo do zapisu
+    cv::VideoWriter video(videoFilename, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), VIDEO_FPS, cv::Size(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)));
+
+    // Dodaj pierwszy zrzut do wideo
+    AddScreenshotToVideo(outputFilename, video);
+
+    // Poczekaj na kolejne zrzuty i dodaj je do wideo
+    while (true) {
+        CaptureAndSaveScreenshot(outputFilename);
+        AddScreenshotToVideo(outputFilename, video);
+        std::this_thread::sleep_for(std::chrono::seconds(SCREENSHOT_INTERVAL_SECONDS));
+    }
+
+    video.release();
+
+    return 0;
+}

