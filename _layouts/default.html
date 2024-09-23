@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page.title }}</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ "/assets/style.css" | relative_url }}">
+  <style>
+    /* Ustawienia dla folderów */
+    .nav-item.folder {
+      margin-bottom: 20px; /* Odstęp dla folderów */
+    }
+
+    /* Ustawienia dla plików */
+    .nav-item.file {
+      margin-bottom: 0; /* Zero odstępu między plikami */
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Pasek po lewej stronie (foldery) -->
+      <nav id="sidebar" class="sidebar">
+        <div class="sidebar-sticky">
+          <div class="text-center">
+            <img src="{{ "/assets/twoje_zdjecie.jpg" | relative_url }}" alt="Twoje zdjęcie" class="img-fluid logo">
+          </div>
+          <div class="text-section">
+            <span class="text-left">Wstęp</span>
+            <span class="text-right">Strona 1</span>
+        </div>
+        <div class="text-section">
+            <span class="text-left">1. Zdefiniowanie sposobu i obszaru pracy</span>
+            <span class="text-right">Strona 3</span>
+        </div>
+          <div class="text-section">
+            <span class="text-left" style="white-space: pre">   1.1. Infrastruktura</span>
+            <span class="text-right">Strona 3</span>
+        </div>
+        <div class="text-section">
+            <span class="text-left" style="white-space: pre">   1.2. Testy</span>
+            <span class="text-right">Strona 4</span>
+        </div>
+          <div class="text-section">
+            <span class="text-left">2. Narzędzia</span>
+            <span class="text-right">Strona 5</span>
+        </div>
+        <div class="text-section">
+            <span class="text-left" style="white-space: pre">   2.1. Mitre ATT&CK</span>
+            <span class="text-right">Strona 5</span>
+        </div>
+          <div class="text-section">
+            <span class="text-left" style="white-space: pre">   2.2. ChatGPT</span>
+            <span class="text-right">Strona 6</span>
+        </div>
+        <div class="text-section">
+            <span class="text-left" style="white-space: pre">   2.3. VirusTotal</span>
+            <span class="text-right">Strona 7</span>
+        </div>
+          <div class="text-section">
+            <span class="text-left">3. Środowisko testowe</span>
+            <span class="text-right">Strona 8</span>
+        </div>
+        <div class="text-section">
+            <span class="text-left" style="white-space: pre-wrap">   3.1. Główna Baza –Windows 10 – Kroki konfiguracji:</span>
+            <span class="text-right">Strona 8</span>
+        </div>
+          <div class="text-section">
+            <span class="text-left" style="white-space: pre-wrap">   3.2. Maszyny wirtualne – z antywirusami – Kroki konfiguracji:</span>
+            <span class="text-right">Strona 9</span>
+        </div>
+        <div class="text-section">
+            <span class="text-left">4. Próbki</span>
+            <span class="text-right">Strona 10</span>
+        </div>
+          <div class="text-section">
+            <span class="text-left" style="white-space: pre">   4.1. Przygotowanie próbek</span>
+            <span class="text-right">Strona 10</span>
+        </div>
+        <div class="text-section">
+            <span class="text-left" style="white-space: pre">   4.2. Opis próbek</span>
+            <span class="text-right">Strona 13</span>
+        </div>
+          <div class="text-section">
+            <span class="text-left" style="white-space: pre">   4.3. Próbki</span>
+            <span class="text-right">Strona 16</span>
+        </div>
+        <div class="text-section">
+            <span class="text-left" style="white-space: pre">   4.4. Statystyka próbek</span>
+            <span class="text-right">Strona 55</span>
+        </div>
+          <div class="text-section">
+            <span class="text-left">5. Wyniki</span>
+            <span class="text-right">Strona 57</span>
+        </div>
+          <div class="text-section">
+            <span class="text-left" style="white-space: pre">   5.1. Uwagi do wyników</span>
+            <span class="text-right">Strona 57</span>
+        </div>
+        <div class="text-section">
+            <span class="text-left" style="white-space: pre">   5.2. Legenda do tabel wyników</span>
+            <span class="text-right">Strona 59</span>
+        </div>
+          <div class="text-section">
+            <span class="text-left" style="white-space: pre-wrap">     5.2.1. Legenda do tabeli wyników antywirusów</span>
+            <span class="text-right">Strona 59</span>
+        </div>
+        <div class="text-section">
+            <span class="text-left" style="white-space: pre-wrap">     5.2.2. Legenda do tabeli wyników VirusTotala</span>
+            <span class="text-right">Strona 60</span>
+        </div>
+          <div class="text-section">
+            <span class="text-left" style="white-space: pre">   5.3. Tabela wyników antywirusów</span>
+            <span class="text-right">Strona 61</span>
+        </div>
+        <div class="text-section">
+            <span class="text-left" style="white-space: pre">   5.4. Ciekawe spostrzeżenia</span>
+            <span class="text-right">Strona 66</span>
+        </div>
+          <div class="text-section">
+            <span class="text-left" style="white-space: pre">   5.5. Tabela wyników VirusTotala</span>
+            <span class="text-right">Strona 69</span>
+        </div>
+        <div class="text-section">
+            <span class="text-left">6. Analiza Wyników</span>
+            <span class="text-right">Strona 72</span>
+        </div>
+          <div class="text-section">
+            <span class="text-left">7. Analiza wyników VirusTotala</span>
+            <span class="text-right">Strona 76</span>
+        </div>
+        <div class="text-section">
+            <span class="text-left">8. Kompleksowe ataki</span>
+            <span class="text-right">Strona 79</span>
+        </div>
+          <div class="text-section">
+            <span class="text-left">9. Podsumowanie</span>
+            <span class="text-right">Strona 84</span>
+        </div>
+        <div class="text-section">
+            <span class="text-left">10. Bibliografia</span>
+            <span class="text-right">Strona 86</span>
+        </div>
+        </div>
+      </nav>
+
+      <!-- Główna zawartość (PDF i pliki) -->
+      <div id="content">
+        <iframe id="pdfViewer" src="https://docs.google.com/gview?url=https://nztukanimperator.github.io/assets/twoj_pdf.pdf&embedded=true" width="100%" height="100%" style="border: none;"></iframe>
+      </div>
+      <!-- Pasek po prawej stronie (rozdziały) -->
+      <nav id="chapterSidebar" class="sidebar">
+
+          <div class="centered-text" href="javascript:void(0)" onclick="loadPDF('/assets/twoj_pdf.pdf')">Praca Magisterska</div>
+          <div class="centered-text" href="javascript:void(0)" onclick="loadPDF('/docs/Uwagi.txt')" style="margin-bottom: 20px;">!! Uwagi do kodu !!</div>
+
+        <ul id="folderList" class="nav flex-column">
+            {% assign folders = site.docs | group_by_exp: "doc", "doc.folder | split: '/' | first" %}
+            {% for folder in folders %}
+              <li class="nav-item folder"> <!-- Dodaj klasę folder -->
+                <a class="nav-link" href="javascript:void(0)" onclick="toggleFolder(this)">{{ folder.name }}</a>
+                <ul class="nav flex-column" style="display: none;">
+                  {% assign subfolders = folder.items | group_by_exp: "doc", "doc.folder | split: '/' | slice: 1, 1 | join: ''" %}
+                  {% for subfolder in subfolders %}
+                    {% if subfolder.name != "" %}
+                      <li class="nav-item folder"> <!-- Dodaj klasę folder -->
+                        <a class="nav-link" href="javascript:void(0)" onclick="toggleFolder(this)">{{ subfolder.name }}</a>
+                        <ul class="nav flex-column" style="display: none;">
+                          {% for doc in subfolder.items %}
+                            <li class="nav-item file"> <!-- Dodaj klasę file -->
+                              <a class="nav-link" href="javascript:void(0)" onclick="loadPDF('{{ doc.url | relative_url }}')">{{ doc.title }}</a>
+                            </li>
+                          {% endfor %}
+                        </ul>
+                      </li>
+                    {% else %}
+                      {% for doc in subfolder.items %}
+                        <li class="nav-item file"> <!-- Dodaj klasę file -->
+                          <a class="nav-link" href="javascript:void(0)" onclick="loadPDF('{{ doc.url | relative_url }}')">{{ doc.title }}</a>
+                        </li>
+                      {% endfor %}
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+              </li>
+            {% endfor %}
+          </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Skrypt do dynamicznego ładowania PDF -->
+  <script>
+    function loadPDF(url) {
+      var pdfViewer = document.getElementById('pdfViewer');
+      pdfViewer.src = 'https://docs.google.com/gview?url=' + window.location.origin + url + '&embedded=true';
+    }
+
+    function toggleFolder(element) {
+      var nextElement = element.nextElementSibling;
+      if (nextElement && nextElement.style.display === "none") {
+        nextElement.style.display = "block";
+      } else {
+        nextElement.style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>

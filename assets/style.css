@@ -1,0 +1,292 @@
+/* Styl dla WebKit (Chrome, Safari) */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+    transform: scale(1.1); /* Powiększenie tekstu */
+}
+
+/* Styl dla Firefox */
+* {
+    scrollbar-width: thin; /* Cienki scrollbar */
+    scrollbar-color: rgba(0, 0, 0, 0.4) transparent; /* Kolor uchwytu i tła */
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    background-color: #ffffff; /* Jasnoszare tło */
+    font-family: Arial, sans-serif; /* Nowa czcionka */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+#sidebar {
+    left: 0;
+    width: 20%; /* Szerokość lewego paska na 20% */
+}
+
+#chapterSidebar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.4) transparent;
+    right: 0;
+    width: 20%; /* Szerokość lewego paska na 20% */
+    background-image: url('Beznazwy.png'); /* Ścieżka do Twojego zdjęcia */
+    background-size: cover; /* Rozciągnięcie zdjęcia na całe tło */
+    background-position: center; /* Wyśrodkowanie zdjęcia */
+    background-repeat: no-repeat; /* Brak powtarzania zdjęcia */
+    backdrop-filter: blur(10px); /* Rozmycie tła */
+    -webkit-backdrop-filter: blur(10px); /* Obsługa dla Safari */
+}
+
+/* Dodaj to do pliku style.css lub w sekcji <style> w HTML */
+.sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.4) transparent;
+    height: 100vh;
+    position: fixed;
+    overflow-y: auto;
+    border-right: 1px solid #dee2e6; /* Delikatna linia po prawej stronie */
+    padding: 20px; /* Padding dla lepszego odstępu */
+    height: 100vh; /* Wysokość na pełną wysokość okna */
+}
+.centered-text {
+    text-align: center; /* Wyśrodkowanie tekstu */
+    font-weight: bold; /* Pogrubienie tekstu */
+    font-style: italic; /* Kursywa */
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Animacja zmiany rozmiaru i koloru tła */
+    padding: 10px; /* Padding dla lepszego efektu */
+    background-color: rgba(255, 255, 255, 0.4);
+    border-bottom: 2px solid #dee2e6;
+    font-size: 24px; /* Zwiększenie rozmiaru czcionki */
+}
+
+/* Efekt najechania */
+.centered-text:hover {
+    transform: scale(1.1); /* Powiększenie tekstu */
+    background-color: rgba(255, 215, 0, 0.5); /* Złote tło z przezroczystością */
+}
+
+.nav-item {
+    transition: margin-bottom 0.3s; /* Płynne przejście */
+    margin-bottom: 20px;
+}
+
+/* Ustawienia dla plików */
+.nav-item.file {
+    margin-bottom: 0; /* Zero odstępu między plikami */
+}
+.nav-link {
+    background-color: rgba(1, 1, 1, 0.5);
+    margin-bottom: 0; /* Zero odstępu między plikami */
+}
+.nav-link {
+    color: #343a40; /* Kolor tekstu */
+    text-decoration: none; /* Brak podkreślenia */
+    padding: 10px; /* Padding wewnętrzny */
+    border-radius: 5px; /* Zaokrąglone rogi */
+    display: block; /* Blokowe wyświetlanie, aby zajmowało całą szerokość */
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    background-color: #e2e6ea; /* Domyślny kolor tła */
+    border: 0.5px solid #dee2e6; /* Zmniejszona ramka wokół elementów */
+    font-weight: bold; /* Pogrubienie liter */
+    position: relative; /* Umożliwienie nakładania się pseudoelementu */
+}
+.nav-linkgold {
+    background-color: rgba(255, 215, 0, 0.5); /* Ustaw tło na złote */
+    color: white; /* Ustaw kolor tekstu (opcjonalnie) */
+    text-decoration: none; /* Usunięcie podkreślenia (jeśli to potrzebne) */
+    padding: 10px 15px; /* Ustawienia paddingu (opcjonalne) */
+    border-radius: 5px; /* Zaokrąglone rogi (opcjonalne) */
+    display: inline-block; /* Upewnij się, że element zajmuje przestrzeń */
+}
+
+/* Jeśli chcesz, aby złote tło było przezroczyste */
+.nav-linkgold:hover {
+    background-color: rgba(255, 215, 0, 0.8); /* Ustaw przezroczystość dla hover */
+    transform: scale(1.1); /* Powiększenie tekstu */
+}
+/* Pseudoelement do rozmycia tła */
+.nav-link::before {
+    content: ''; /* Tworzenie pseudoelementu */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.5); /* Tło z przezroczystością */
+    backdrop-filter: blur(10px); /* Rozmycie tła */
+    -webkit-backdrop-filter: blur(10px); /* Obsługa dla Safari */
+    z-index: -1; /* Ustawienie tła za tekstem */
+    border-radius: 5px; /* Dopasowanie do zaokrąglonych rogów */
+}
+
+.nav-link:hover {
+    background-color: #d0d4d8; /* Ciemniejszy kolor tła przy najechaniu */
+    transform: scale(1.1); /* Powiększenie tekstu */
+}
+
+ul.nav {
+    list-style-type: none; /* Usunięcie domyślnych punktów listy */
+    padding-left: 20px; /* Wcięcie dla podfolderów */
+    font-weight: bold; /* Pogrubienie liter dla elementów listy */
+}
+
+.even {
+    background-color: #f2f2f2; /* Kolor tła dla parzystych linii */
+    border: 0.5px solid #dee2e6; /* Zmniejszona ramka */
+}
+
+.odd {
+    background-color: #ffffff; /* Kolor tła dla nieparzystych linii */
+    border: 0.5px solid #dee2e6; /* Zmniejszona ramka */
+}
+
+#content {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.4) transparent;
+    margin-left: 20%; /* Dostosowanie miejsca po lewej stronie dla sidebaru */
+    margin-right: 20%; /* Dostosowanie miejsca po prawej stronie dla sidebaru z rozdziałami */
+    width: 80%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: #fff;
+}
+
+img {
+    width: 150px; /* Ustawienie szerokości zdjęcia */
+    height: 150px; /* Ustawienie wysokości zdjęcia */
+    margin: 0px auto; /* Wyśrodkowanie zdjęcia */
+    margin-bottom: 10px;
+    display: block; /* Ustawienie wyświetlania na blok */
+    padding: 0;
+}
+/* Styl dla logo */
+.logo {
+    width: calc(100% - 0px); /* Szerokość 100% minus margines 10px z każdej strony */
+    height: auto; /* Automatyczna wysokość, aby zachować proporcje */
+    margin: 0px; /* Margines 10px z każdej strony */
+    margin-bottom: 10px;
+    background-color: transparent; /* Przezroczyste tło */
+    box-shadow: none; /* Usuń cień, jeśli był dodany */
+}
+pre {
+    white-space: pre-wrap;  /* Zawijanie linii */
+    word-wrap: break-word;  /* Łamanie długich słów */
+    padding: 10px;
+    margin: 0;  /* Usuń margines wokół pre */
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    line-height: 1.6;
+    overflow-y: auto;  /* Dodaj scroll w pionie, jeśli tekst jest zbyt długi */
+    max-height: 100vh;  /* Ograniczenie wysokości do widocznego obszaru ekranu */
+}
+
+pre div {
+    padding: 5px;  /* Odstęp wewnętrzny dla każdej linii */
+}
+
+pre .even {
+    background-color: #f0f0f0;  /* Kolor dla co drugiej linii */
+}
+
+pre .odd {
+    background-color: #ffffff;  /* Kolor dla reszty */
+}
+
+
+/* Styl dla głównych folderów */
+.nav-item > .nav-link {
+    font-weight: bold; /* Pogrubienie głównych folderów */
+    font-size: 16px; /* Domyślny rozmiar czcionki dla głównych folderów */
+    color: #343a40; /* Kolor tekstu */
+    text-decoration: none; /* Brak podkreślenia */
+    padding: 5px; /* Mniejszy padding dla folderów, zmniejszając przestrzeń wokół tekstu */
+    border-radius: 5px; /* Zaokrąglone rogi */
+    display: block; /* Blokowe wyświetlanie, aby zajmowało całą szerokość */
+    background-color: rgba(255, 255, 255, 0.3); /* Użycie białego z przezroczystością */
+    border: 0.5px solid #dee2e6; /* Zmniejszona ramka wokół elementów */
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Efekt przejścia dla hover */
+}
+
+/* Hover efekt dla głównych folderów */
+.nav-item > .nav-link:hover {
+    background-color: #d0d4d8; /* Ciemniejszy kolor tła przy najechaniu */
+    transform: scale(1.1); /* Powiększenie tekstu */
+}
+
+/* Styl dla podfolderów i plików */
+.nav-item ul .nav-link {
+    font-weight: normal; /* Brak pogrubienia dla podfolderów i plików */
+    font-size: 14px; /* Zmniejszenie rozmiaru czcionki o 2px */
+    color: #343a40; /* Kolor tekstu */
+    text-decoration: none; /* Brak podkreślenia */
+    padding: 3px 5px; /* Mniejszy padding dla podfolderów i plików */
+    border-radius: 5px; /* Zaokrąglone rogi */
+    display: block; /* Blokowe wyświetlanie, aby zajmowało całą szerokość */
+    background-color: rgba(255, 255, 255, 0.3); /* Użycie białego z przezroczystością */
+    border: 0.5px solid #dee2e6; /* Zmniejszona ramka wokół elementów */
+}
+
+/* Hover efekt dla podfolderów i plików */
+.nav-item ul .nav-link:hover {
+    background-color: #e9ecef; /* Ciemniejsze tło przy najechaniu */
+    transform: scale(1.1); /* Powiększenie tekstu */
+}
+
+/* Usunięcie domyślnych punktów listy i wcięcie dla podfolderów */
+ul.nav {
+    list-style-type: none; /* Usunięcie domyślnych punktów listy */
+    padding-left: 20px; /* Wcięcie dla podfolderów */
+}
+
+/* Styl dla parzystych i nieparzystych linii */
+.even {
+    background-color: #f2f2f2; /* Kolor tła dla parzystych linii */
+    border: 0.5px solid #dee2e6; /* Zmniejszona ramka */
+}
+
+.odd {
+    background-color: #ffffff; /* Kolor tła dla nieparzystych linii */
+    border: 0.5px solid #dee2e6; /* Zmniejszona ramka */
+}
+
+.text-section {
+    display: flex; /* Używamy flexbox do rozłożenia elementów */
+    justify-content: space-between; /* Ustawiamy odstęp między elementami */
+    padding: 4px 0; /* Odstęp między liniami tekstu */
+    border-bottom: 1px solid #dee2e6; /* Opcjonalnie: linia oddzielająca każdą sekcję */
+}
+
+.text-left {
+    text-align: left; /* Tekst po lewej stronie */
+    font-weight: bold; /* Opcjonalnie: pogrubienie tekstu */
+    font-size: 10px;
+}
+
+.text-right {
+    text-align: right; /* Tekst po prawej stronie */
+    font-style: italic; /* Opcjonalnie: kursywa */
+    font-size: 10px;
+}
+

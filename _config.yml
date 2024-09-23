@@ -1,0 +1,9 @@
+title: Moja strona
+description: Strona z Twoim PDF-em
+theme: minima
+markdown: kramdown
+
+
+collections:
+  docs:
+    output: true

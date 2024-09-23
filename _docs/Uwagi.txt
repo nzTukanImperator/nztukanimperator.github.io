@@ -1,0 +1,3 @@
+1. Przedstawiony poniżej kod jest kodem źródłowym jedynie głównego pliku złośliwego oprogramowania, ponieważ cała reszta była wygenerowana przez VisualStudio. Owszem cały katalog ułatwił by bezbłędną kompilację, jednak rozmiar tych folder czasami sięgał kilkuset MB, a ja po dłuższej przerwię nie byłem w stanie zweryfikować czy jakieś pliki mogę usunąć czy nie aby nie przekroczyć limitu Githuba. 
+
+2. Dodatkowo niektóre programy wymagały zewnętrznych bibliotek, które potrafiły swoje ważyć, dlatego i tu postanowiłem ich nie dodawać, gdyż są one powszechnie dostępne. 

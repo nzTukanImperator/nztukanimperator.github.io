@@ -1,0 +1,5 @@
+Copyright (c) 2024 Michał Jóźków
+
+Zezwala się na korzystanie, kopiowanie, modyfikowanie, łączenie, publikowanie oraz dystrybuowanie tego oprogramowania, pod warunkiem dołączenia powiadomienia o prawach autorskich oraz powiadomienia o licencji w każdej kopii lub znaczącej części tego oprogramowania.
+
+To oprogramowanie jest dostarczane "tak jak jest", bez żadnych gwarancji wyrażonych lub domniemanych, w tym, ale nie ograniczając się do gwarancji przydatności handlowej, przydatności do określonego celu oraz braku naruszenia praw.
